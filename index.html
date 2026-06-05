@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Task Allocator Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:#f0f2f7; --sur:#fff; --sur2:#f7f8fc; --bdr:#e2e6f0;
+  --pri:#2563eb; --pri-s:#eff4ff; --txt:#0f1729; --mut:#6b7a99;
+  --grn:#16a34a; --grn-b:#dcfce7; --red:#dc2626; --red-b:#fee2e2;
+  --amb:#d97706; --amb-b:#fef3c7; --cya:#0891b2; --cya-b:#cffafe;
+  --pur:#7c3aed; --pur-b:#ede9fe; --pnk:#db2777; --pnk-b:#fce7f3;
+  --tea:#059669; --tea-b:#d1fae5;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 1px 8px rgba(0,0,0,.04);
+  --r:10px; --rs:6px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-size:14px}
+
+/* OVERLAY */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:var(--sur);border-radius:14px;width:100%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;animation:slideUp .2s ease}
+.modal.wide{max-width:620px}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.modal-head h3{font-size:15px;font-weight:700}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--mut);font-size:20px;line-height:1;padding:2px 6px;border-radius:5px;transition:background .15s}
+.modal-close:hover{background:var(--bdr);color:var(--txt)}
+.modal-body{padding:22px}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:10px}
+
+/* FORM */
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.fg label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mut)}
+.fg input,.fg select,.fg textarea{padding:9px 11px;border:1px solid var(--bdr);border-radius:var(--rs);font:14px 'DM Sans',sans-serif;color:var(--txt);background:var(--sur2);outline:none;transition:border-color .15s,box-shadow .15s;width:100%}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.fg textarea{resize:vertical;min-height:70px}
+.fgrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fgrow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* PAT MODAL */
+.pat-info{background:var(--pri-s);border:1px solid #bfdbfe;border-radius:var(--rs);padding:12px 14px;font-size:13px;color:#1e40af;line-height:1.6;margin-bottom:16px}
+.pat-info a{color:var(--pri);font-weight:600}
+.pat-warn{background:var(--red-b);border:1px solid #fca5a5;border-radius:var(--rs);padding:10px 14px;font-size:12.5px;color:#991b1b;margin-top:12px}
+
+/* HEADER */
+.header{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 28px;display:flex;align-items:center;height:60px;box-shadow:var(--sh);position:sticky;top:0;z-index:100;gap:12px}
+.hbrand{display:flex;align-items:center;gap:10px;flex:1}
+.hicon{width:32px;height:32px;background:var(--pri);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;flex-shrink:0}
+.htitle{font-size:16px;font-weight:700;letter-spacing:-.3px}
+.hsubtitle{font-size:11px;color:var(--mut)}
+
+/* SAVE / PAT STATUS AREA */
+.hactions{display:flex;align-items:center;gap:8px}
+.pat-dot{width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block;margin-right:4px;transition:background .3s}
+.pat-dot.ok{background:var(--grn)}
+.pat-btn{background:none;border:1px solid var(--bdr);border-radius:var(--rs);padding:5px 11px;font:13px 'DM Sans',sans-serif;color:var(--mut);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
+.pat-btn:hover{border-color:var(--pri);color:var(--pri)}
+
+.save-btn{background:var(--pri);color:#fff;border:none;border-radius:var(--rs);padding:7px 16px;font:600 13px 'DM Sans',sans-serif;cursor:pointer;display:none;align-items:center;gap:6px;transition:opacity .15s;white-space:nowrap}
+.save-btn.visible{display:flex}
+.save-btn:hover{opacity:.88}
+.save-btn.saving{opacity:.65;pointer-events:none}
+.save-btn.saved{background:var(--grn)}
+.save-btn.err{background:var(--red)}
+
+.load-banner{font-size:12px;color:var(--mut);display:flex;align-items:center;gap:6px}
+.spin{width:14px;height:14px;border:2px solid var(--bdr);border-top-color:var(--pri);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TABS */
+.tabs{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 28px;display:flex;gap:0;overflow-x:auto}
+.tab{padding:13px 18px;font:500 13px 'DM Sans',sans-serif;color:var(--mut);background:none;border:none;border-bottom:2.5px solid transparent;cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;transition:all .15s}
+.tab:hover{color:var(--pri);background:var(--pri-s)}
+.tab.active{color:var(--pri);border-bottom-color:var(--pri);font-weight:600}
+.tbadge{background:var(--bdr);color:var(--mut);border-radius:20px;padding:1px 7px;font-size:11px;font-weight:600}
+.tab.active .tbadge{background:var(--pri-s);color:var(--pri)}
+
+/* CONTENT */
+.content{padding:24px 28px;max-width:1440px;margin:0 auto}
+.panel{display:none}.panel.active{display:block}
+
+/* CARDS */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
+.card{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh)}
+.card-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);margin-bottom:4px}
+.card-val{font-size:26px;font-weight:700;letter-spacing:-1px;font-family:'DM Mono',monospace}
+.card-sub{font-size:11px;color:var(--mut);margin-top:2px}
+.card.blue .card-val{color:var(--pri)}.card.green .card-val{color:var(--grn)}.card.red .card-val{color:var(--red)}.card.purple .card-val{color:var(--pur)}
+
+/* TOOLBAR */
+.toolbar{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;box-shadow:var(--sh)}
+.tlabel{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mut)}
+.srch{padding:7px 10px 7px 32px;border:1px solid var(--bdr);border-radius:var(--rs);font:13px 'DM Sans',sans-serif;color:var(--txt);background:var(--sur2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%236b7a99' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E") no-repeat 9px center;width:200px;outline:none;transition:border-color .15s}
+.srch:focus{border-color:var(--pri)}
+.fsel{padding:7px 26px 7px 9px;border:1px solid var(--bdr);border-radius:var(--rs);font:13px 'DM Sans',sans-serif;color:var(--txt);background:var(--sur2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%236b7a99' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 7px center;appearance:none;outline:none;cursor:pointer;transition:border-color .15s}
+.fsel:focus{border-color:var(--pri)}
+.sp{flex:1}
+.cinfo{font-size:12px;color:var(--mut)}
+
+/* BUTTONS */
+.btn{padding:7px 14px;border-radius:var(--rs);font:600 12.5px 'DM Sans',sans-serif;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn-pri{background:var(--pri);color:#fff}.btn-pri:hover{opacity:.88}
+.btn-sec{background:transparent;color:var(--mut);border:1px solid var(--bdr)}.btn-sec:hover{border-color:var(--mut);color:var(--txt)}
+.btn-grn{background:var(--grn);color:#fff}.btn-grn:hover{opacity:.88}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{opacity:.88}
+.btn-ghost{background:transparent;border:none;color:var(--mut);padding:4px 7px;border-radius:4px;cursor:pointer;font-size:13px;transition:all .15s}
+.btn-ghost:hover{background:var(--bdr);color:var(--txt)}
+.btn-icon-edit{color:var(--pri)}.btn-icon-del{color:var(--red)}
+
+/* TABLE */
+.tbl-wrap{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.tbl-wrap table{width:100%;border-collapse:collapse}
+thead{background:var(--sur2)}
+thead th{padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);border-bottom:1px solid var(--bdr);white-space:nowrap}
+thead th:first-child{padding-left:18px}
+tbody tr{border-bottom:1px solid var(--bdr);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--sur2)}
+tbody td{padding:10px 14px;font-size:13.5px;vertical-align:middle}
+tbody td:first-child{padding-left:18px}
+.emp{font-weight:600}.mono{font-family:'DM Mono',monospace;font-size:13px}
+.rem{font-size:12px;color:var(--mut);font-style:italic}
+.row-num{color:var(--mut);font-size:11px;font-family:'DM Mono',monospace}
+.act-cell{white-space:nowrap;text-align:right;padding-right:12px!important}
+.no-rows{padding:40px;text-align:center;color:var(--mut);font-size:13px}
+.no-rows-icon{font-size:28px;margin-bottom:8px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.b-avail{background:var(--grn-b);color:var(--grn)}
+.b-leave{background:var(--red-b);color:var(--red)}
+.b-onb{background:var(--pur-b);color:var(--pur)}
+.b-suc{background:var(--cya-b);color:var(--cya)}
+.b-top{background:var(--amb-b);color:var(--amb)}
+.b-flo{background:var(--pnk-b);color:var(--pnk)}
+.b-kl{background:var(--tea-b);color:var(--tea)}
+
+/* DATE GROUP HEADER (History) */
+.dg-head{background:var(--pri-s);color:var(--pri);padding:9px 16px;border-radius:var(--rs);font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;margin:18px 0 8px}
+.dg-pill{background:var(--pri);color:#fff;border-radius:5px;padding:1px 8px;font-family:'DM Mono',monospace;font-size:12px}
+.dg-info{margin-left:auto;font-size:12px;opacity:.7}
+
+/* LOG META */
+.log-meta{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.lm-card{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 20px;box-shadow:var(--sh);flex:1;min-width:180px}
+.lm-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin-bottom:4px}
+.lm-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:var(--pri)}
+.lm-edit-row{display:flex;align-items:center;gap:6px;margin-top:6px}
+.lm-inp{font:600 13px 'DM Mono',monospace;color:var(--pri);background:var(--pri-s);border:1px solid #bfdbfe;border-radius:4px;padding:3px 8px;outline:none;width:100%}
+
+/* TEMPLATE */
+.tpl-wrap{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.tpl-head{padding:14px 18px;border-bottom:1px solid var(--bdr);background:var(--sur2);font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.tpl-body{padding:22px 24px}
+.tpl-ref{margin-top:22px;border-top:1px solid var(--bdr);padding-top:18px}
+.tpl-ref-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin-bottom:8px}
+.tpl-ref table{width:100%;border-collapse:collapse}
+.tpl-ref th{text-align:left;padding:8px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);background:var(--sur2);border:1px solid var(--bdr)}
+.tpl-ref td{padding:8px 12px;font-size:13px;color:#aaa;font-style:italic;border:1px solid var(--bdr)}
+
+/* DIRTY BANNER */
+.dirty-bar{display:none;background:#fefce8;border:1px solid #fde047;border-radius:var(--rs);padding:8px 14px;font-size:12.5px;color:#854d0e;margin-bottom:14px;align-items:center;gap:8px}
+.dirty-bar.show{display:flex}
+
+/* RESPONSIVE */
+@media(max-width:700px){.content{padding:14px}.header{padding:0 14px}.tabs{padding:0 6px}.fgrow,.fgrow3{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}.hsubtitle{display:none}.srch{width:140px}}
+</style>
+</head>
+<body>
+
+<!-- ===== PAT MODAL ===== -->
+<div class="overlay" id="pat-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>🔑 GitHub Access Token</h3>
+      <button class="modal-close" onclick="closeModal('pat-overlay')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="pat-info">
+        To save changes back to GitHub, each editor needs a <strong>Personal Access Token (PAT)</strong>.<br><br>
+        Generate one at: <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens/new</a><br>
+        Set scope: <strong>Contents → Read &amp; Write</strong> on the <code>sanil18/dashboard</code> repo.<br><br>
+        Your token is stored only in <em>your</em> browser — never sent anywhere except GitHub's API.
+      </div>
+      <div class="fg">
+        <label>Personal Access Token</label>
+        <input type="password" id="pat-input" placeholder="github_pat_..." autocomplete="off"/>
+      </div>
+      <div class="pat-warn" id="pat-err" style="display:none"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sec" onclick="closeModal('pat-overlay')">Cancel</button>
+      <button class="btn btn-pri" onclick="savePAT()">Save Token</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADD / EDIT MODAL ===== -->
+<div class="overlay" id="entry-overlay">
+  <div class="modal wide">
+    <div class="modal-head">
+      <h3 id="entry-title">Add Entry</h3>
+      <button class="modal-close" onclick="closeModal('entry-overlay')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="fgrow">
+        <div class="fg"><label>Date</label><input type="text" id="f-date" placeholder="June 04, 2026"/></div>
+        <div class="fg"><label>Employee Name</label><input type="text" id="f-emp" placeholder="Full name"/></div>
+      </div>
+      <div class="fgrow">
+        <div class="fg">
+          <label>Assignment</label>
+          <select id="f-assign">
+            <option value="">Select...</option>
+            <option>Onboarding</option>
+            <option>Success Ticket</option>
+            <option>Ticket Ops</option>
+            <option>Floater</option>
+            <option>KL Update</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Status</label>
+          <select id="f-status">
+            <option value="">Select...</option>
+            <option>Available</option>
+            <option>On Leave</option>
+          </select>
+        </div>
+      </div>
+      <div class="fgrow">
+        <div class="fg"><label>Tickets Completed</label><input type="number" id="f-tickets" placeholder="0" min="0"/></div>
+        <div class="fg"><label>Remarks</label><input type="text" id="f-remarks" placeholder="Optional notes"/></div>
+      </div>
+      <div class="pat-warn" id="entry-err" style="display:none"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sec" onclick="closeModal('entry-overlay')">Cancel</button>
+      <button class="btn btn-pri" onclick="submitEntry()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DELETE CONFIRM MODAL ===== -->
+<div class="overlay" id="del-overlay">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head"><h3>Delete Entry</h3><button class="modal-close" onclick="closeModal('del-overlay')">×</button></div>
+    <div class="modal-body"><p style="font-size:14px;color:var(--mut);line-height:1.6">Are you sure you want to delete <strong id="del-name"></strong>'s entry? This cannot be undone.</p></div>
+    <div class="modal-foot">
+      <button class="btn btn-sec" onclick="closeModal('del-overlay')">Cancel</button>
+      <button class="btn btn-red" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <div class="hbrand">
+    <div class="hicon">📋</div>
+    <div>
+      <div class="htitle">Task Allocator Dashboard</div>
+      <div class="hsubtitle">sanil18/dashboard · data.json</div>
+    </div>
+  </div>
+  <div class="hactions">
+    <div class="load-banner" id="load-banner"><div class="spin"></div> Loading…</div>
+    <button class="pat-btn" onclick="openModal('pat-overlay')" title="Manage GitHub token">
+      <span class="pat-dot" id="pat-dot"></span><span id="pat-label">Set Token</span>
+    </button>
+    <button class="save-btn" id="save-btn" onclick="saveToGitHub()">💾 Save to GitHub</button>
+  </div>
+</div>
+
+<!-- ===== TABS ===== -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('main')">📊 MAIN Sheet <span class="tbadge" id="badge-main">—</span></button>
+  <button class="tab" onclick="switchTab('history')">🗂 History Index <span class="tbadge" id="badge-hist">—</span></button>
+  <button class="tab" onclick="switchTab('logs')">📝 LOGS <span class="tbadge" id="badge-logs">—</span></button>
+  <button class="tab" onclick="switchTab('template')">🗒 Template</button>
+</div>
+
+<!-- ===== CONTENT ===== -->
+<div class="content">
+
+  <!-- ── MAIN ── -->
+  <div class="panel active" id="panel-main">
+    <div class="dirty-bar" id="dirty-bar">⚠️ You have unsaved changes — click <strong>Save to GitHub</strong> to commit them.</div>
+    <div class="cards">
+      <div class="card blue"><div class="card-label">Total Employees</div><div class="card-val" id="c-total">—</div><div class="card-sub" id="c-date">—</div></div>
+      <div class="card green"><div class="card-label">Available</div><div class="card-val" id="c-avail">—</div><div class="card-sub">On duty</div></div>
+      <div class="card red"><div class="card-label">On Leave</div><div class="card-val" id="c-leave">—</div><div class="card-sub">Absent</div></div>
+      <div class="card purple"><div class="card-label">Total Tickets</div><div class="card-val" id="c-tickets">—</div><div class="card-sub">Completed</div></div>
+    </div>
+    <div class="toolbar">
+      <span class="tlabel">Filter:</span>
+      <input class="srch" id="ms-search" type="text" placeholder="Search employee…" oninput="renderMain()"/>
+      <select class="fsel" id="ms-status" onchange="renderMain()"><option value="">All Statuses</option><option>Available</option><option>On Leave</option></select>
+      <select class="fsel" id="ms-assign" onchange="renderMain()"><option value="">All Assignments</option><option>Onboarding</option><option>Success Ticket</option><option>Ticket Ops</option><option>Floater</option><option>KL Update</option></select>
+      <div class="sp"></div>
+      <button class="btn btn-grn" onclick="archiveToHistory()" title="Copy all Main entries into History">📦 Archive → History</button>
+      <button class="btn btn-pri" onclick="openEntry('main','add')">+ Add Entry</button>
+    </div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>#</th><th>Date</th><th>Employee</th><th>Assignment</th><th>Status</th><th>Tickets</th><th>Remarks</th><th></th></tr></thead>
+      <tbody id="main-body"></tbody></table>
+      <div class="no-rows" id="main-empty" style="display:none"><div class="no-rows-icon">🔍</div>No entries match your filters.</div>
+    </div>
+  </div>
+
+  <!-- ── HISTORY ── -->
+  <div class="panel" id="panel-history">
+    <div class="toolbar">
+      <span class="tlabel">Filter:</span>
+      <input class="srch" id="hs-search" type="text" placeholder="Search employee…" oninput="renderHistory()"/>
+      <select class="fsel" id="hs-date" onchange="renderHistory()"><option value="">All Dates</option></select>
+      <select class="fsel" id="hs-status" onchange="renderHistory()"><option value="">All Statuses</option><option>Available</option><option>On Leave</option></select>
+      <div class="sp"></div>
+      <span class="cinfo" id="hist-count"></span>
+      <button class="btn btn-pri" onclick="openEntry('history','add')">+ Add Entry</button>
+    </div>
+    <div id="hist-body"></div>
+  </div>
+
+  <!-- ── LOGS ── -->
+  <div class="panel" id="panel-logs">
+    <div class="log-meta">
+      <div class="lm-card">
+        <div class="lm-label">Date Range</div>
+        <div class="lm-edit-row">
+          <input class="lm-inp" id="log-daterange" type="text" placeholder="June 04, 2026" oninput="updateLogMeta()"/>
+        </div>
+      </div>
+      <div class="lm-card">
+        <div class="lm-label">Total Ticket Count</div>
+        <div class="lm-edit-row">
+          <input class="lm-inp" id="log-tickets" type="number" placeholder="0" oninput="updateLogMeta()"/>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <span class="tlabel">Filter:</span>
+      <input class="srch" id="ls-search" type="text" placeholder="Search employee…" oninput="renderLogs()"/>
+      <select class="fsel" id="ls-status" onchange="renderLogs()"><option value="">All Statuses</option><option>Available</option><option>On Leave</option></select>
+      <div class="sp"></div>
+      <span class="cinfo" id="logs-count"></span>
+      <button class="btn btn-pri" onclick="openEntry('logs','add')">+ Add Entry</button>
+    </div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>#</th><th>Date</th><th>Employee</th><th>Assignment</th><th>Status</th><th>Tickets</th><th>Remarks</th><th></th></tr></thead>
+      <tbody id="logs-body"></tbody></table>
+      <div class="no-rows" id="logs-empty" style="display:none"><div class="no-rows-icon">🔍</div>No log entries match.</div>
+    </div>
+  </div>
+
+  <!-- ── TEMPLATE ── -->
+  <div class="panel" id="panel-template">
+    <div class="tpl-wrap">
+      <div class="tpl-head">📋 Entry Template <span style="font-size:12px;font-weight:400;color:var(--mut);margin-left:4px">— Draft an entry then add to Main or History</span></div>
+      <div class="tpl-body">
+        <div class="fgrow">
+          <div class="fg"><label>Date</label><input type="text" id="t-date" placeholder="June 04, 2026"/></div>
+          <div class="fg"><label>Employee Name</label><input type="text" id="t-emp" placeholder="Full name"/></div>
+        </div>
+        <div class="fgrow3">
+          <div class="fg"><label>Assignment</label>
+            <select id="t-assign"><option value="">Select…</option><option>Onboarding</option><option>Success Ticket</option><option>Ticket Ops</option><option>Floater</option><option>KL Update</option></select>
+          </div>
+          <div class="fg"><label>Status</label>
+            <select id="t-status"><option value="">Select…</option><option>Available</option><option>On Leave</option></select>
+          </div>
+          <div class="fg"><label>Tickets</label><input type="number" id="t-tickets" placeholder="0" min="0"/></div>
+        </div>
+        <div class="fgrow">
+          <div class="fg"><label>Hours</label><input type="number" id="t-hours" placeholder="0.0" min="0" step="0.5"/></div>
+          <div class="fg"><label>Remarks</label><input type="text" id="t-remarks" placeholder="Optional notes"/></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap">
+          <button class="btn btn-pri" onclick="tplAddTo('main')">+ Add to Main</button>
+          <button class="btn btn-grn" onclick="tplAddTo('history')">+ Add to History</button>
+          <button class="btn btn-sec" onclick="clearTemplate()">Clear</button>
+        </div>
+        <div class="tpl-ref">
+          <div class="tpl-ref-label">Column Reference</div>
+          <table><thead><tr><th>Employee</th><th>Assignment</th><th>Status</th><th>Tickets</th><th>Hours</th><th>Remarks</th></tr></thead>
+          <tbody><tr><td>Full name</td><td>Task type</td><td>Available / On Leave</td><td>Count</td><td>Hours worked</td><td>Optional notes</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- .content -->
+
+<script>
+// =====================================================================
+// CONFIG
+// =====================================================================
+const GH = { user:'sanil18', repo:'dashboard', branch:'main', file:'data.json' };
+const API_BASE = `https://api.github.com/repos/${GH.user}/${GH.repo}/contents/${GH.file}`;
+
+// =====================================================================
+// STATE
+// =====================================================================
+let DB = { main:[], history:[], logs:{ meta:{ dateRange:'', totalTickets:0 }, entries:[] } };
+let fileSha = null;
+let isDirty = false;
+let pat = localStorage.getItem('task_dash_pat') || '';
+let editCtx = { sheet:null, mode:null, idx:null };
+let delCtx  = { sheet:null, idx:null };
+
+// =====================================================================
+// GITHUB API
+// =====================================================================
+function ghHeaders() {
+  const h = { 'Content-Type':'application/json' };
+  if (pat) h['Authorization'] = `Bearer ${pat}`;
+  return h;
+}
+
+async function loadData() {
+  setLoadBanner(true);
+  try {
+    const res = await fetch(API_BASE, { headers: ghHeaders(), cache:'no-store' });
+    if (res.status === 404) { setLoadBanner(false,'File not found — will create on first save'); return; }
+    if (!res.ok) throw new Error(`GitHub API: ${res.status}`);
+    const meta = await res.json();
+    fileSha = meta.sha;
+    DB = JSON.parse(decodeBase64(meta.content));
+    setLoadBanner(false, '✓ Loaded');
+  } catch(e) {
+    // Fallback: raw URL (read-only, no SHA for writes)
+    try {
+      const raw = await fetch(`https://raw.githubusercontent.com/${GH.user}/${GH.repo}/${GH.branch}/${GH.file}?t=${Date.now()}`);
+      if (raw.ok) { DB = await raw.json(); setLoadBanner(false,'✓ Loaded (read-only — set token to enable saves)'); }
+      else throw new Error('Raw fetch failed');
+    } catch(e2) { setLoadBanner(false,'⚠ Could not load data — check connection'); }
+  }
+  renderAll();
+}
+
+async function saveToGitHub() {
+  if (!pat) { openModal('pat-overlay'); return; }
+  const btn = document.getElementById('save-btn');
+  btn.textContent = '⏳ Saving…'; btn.classList.add('saving'); btn.classList.remove('saved','err');
+  try {
+    const json = JSON.stringify(DB, null, 2);
+    const content = encodeBase64(json);
+    const body = { message:`Dashboard update — ${new Date().toLocaleString()}`, content };
+    if (fileSha) body.sha = fileSha;
+    const res = await fetch(API_BASE, { method:'PUT', headers:ghHeaders(), body:JSON.stringify(body) });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.message || `HTTP ${res.status}`); }
+    const result = await res.json();
+    fileSha = result.content.sha;
+    setDirty(false);
+    btn.textContent = '✓ Saved'; btn.classList.remove('saving'); btn.classList.add('saved');
+    setTimeout(()=>{ btn.classList.remove('visible','saved'); btn.textContent='💾 Save to GitHub'; }, 3000);
+  } catch(e) {
+    btn.textContent = '✗ Error: '+e.message; btn.classList.remove('saving'); btn.classList.add('err');
+    setTimeout(()=>{ btn.classList.remove('err'); btn.textContent='💾 Save to GitHub'; }, 5000);
+  }
+}
+
+// =====================================================================
+// PAT MANAGEMENT
+// =====================================================================
+function updatePATUI() {
+  const dot = document.getElementById('pat-dot');
+  const lbl = document.getElementById('pat-label');
+  if (pat) { dot.classList.add('ok'); lbl.textContent = 'Token Set'; }
+  else      { dot.classList.remove('ok'); lbl.textContent = 'Set Token'; }
+}
+function savePAT() {
+  const v = document.getElementById('pat-input').value.trim();
+  if (!v) { showPatErr('Please enter a token.'); return; }
+  pat = v; localStorage.setItem('task_dash_pat', pat);
+  updatePATUI(); closeModal('pat-overlay');
+  loadData(); // reload with auth to get SHA
+}
+function showPatErr(msg) {
+  const el = document.getElementById('pat-err');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+// =====================================================================
+// HELPERS
+// =====================================================================
+function decodeBase64(str) { return decodeURIComponent(escape(atob(str.replace(/\s/g,'')))); }
+function encodeBase64(str) { return btoa(unescape(encodeURIComponent(str))); }
+
+function setLoadBanner(loading, msg) {
+  const el = document.getElementById('load-banner');
+  if (loading) { el.innerHTML = '<div class="spin"></div> Loading…'; el.style.display='flex'; }
+  else if (msg) { el.textContent = msg; el.style.display='flex'; setTimeout(()=>el.style.display='none', 3000); }
+  else { el.style.display='none'; }
+}
+
+function setDirty(v) {
+  isDirty = v;
+  const btn = document.getElementById('save-btn');
+  const bar = document.getElementById('dirty-bar');
+  if (v) { btn.classList.add('visible'); bar.classList.add('show'); btn.textContent='💾 Save to GitHub'; btn.classList.remove('saved','err'); }
+  else   { btn.classList.remove('visible'); bar.classList.remove('show'); }
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function assignBadge(a) {
+  const m = { 'Onboarding':'b-onb','Success Ticket':'b-suc','Ticket Ops':'b-top','Floater':'b-flo','KL Update':'b-kl' };
+  return `<span class="badge ${m[a]||''}">${a||'—'}</span>`;
+}
+function statusBadge(s) {
+  return s==='Available'
+    ? `<span class="badge b-avail">✓ Available</span>`
+    : `<span class="badge b-leave">✗ On Leave</span>`;
+}
+function makeRow(d, idx, sheet) {
+  return `<tr>
+    <td class="row-num">${idx+1}</td>
+    <td class="mono">${d.date||'—'}</td>
+    <td class="emp">${d.employee||'—'}</td>
+    <td>${assignBadge(d.assignment)}</td>
+    <td>${statusBadge(d.status)}</td>
+    <td class="mono" style="text-align:center;font-weight:600">${d.tickets??'—'}</td>
+    <td class="rem">${d.remarks||'—'}</td>
+    <td class="act-cell">
+      <button class="btn-ghost btn-icon-edit" onclick="openEntry('${sheet}','edit',${idx})" title="Edit">✏️</button>
+      <button class="btn-ghost btn-icon-del"  onclick="openDelete('${sheet}',${idx})"        title="Delete">🗑</button>
+    </td>
+  </tr>`;
+}
+
+// =====================================================================
+// CRUD
+// =====================================================================
+function openEntry(sheet, mode, idx=null) {
+  editCtx = { sheet, mode, idx };
+  document.getElementById('entry-title').textContent = mode==='add' ? 'Add Entry' : 'Edit Entry';
+  const today = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'2-digit'});
+  const d = mode==='edit' ? getRow(sheet, idx) : { date:today, employee:'', assignment:'', status:'', tickets:'', remarks:'' };
+  document.getElementById('f-date').value    = d.date    || today;
+  document.getElementById('f-emp').value     = d.employee|| '';
+  document.getElementById('f-assign').value  = d.assignment||'';
+  document.getElementById('f-status').value  = d.status  || '';
+  document.getElementById('f-tickets').value = d.tickets ?? '';
+  document.getElementById('f-remarks').value = d.remarks || '';
+  document.getElementById('entry-err').style.display='none';
+  openModal('entry-overlay');
+}
+function submitEntry() {
+  const entry = {
+    date:     document.getElementById('f-date').value.trim(),
+    employee: document.getElementById('f-emp').value.trim(),
+    assignment: document.getElementById('f-assign').value,
+    status:   document.getElementById('f-status').value,
+    tickets:  parseInt(document.getElementById('f-tickets').value)||0,
+    remarks:  document.getElementById('f-remarks').value.trim()
+  };
+  const err = document.getElementById('entry-err');
+  if (!entry.employee) { err.textContent='Employee name is required.'; err.style.display='block'; return; }
+  if (!entry.assignment){ err.textContent='Please select an assignment.'; err.style.display='block'; return; }
+  if (!entry.status)   { err.textContent='Please select a status.'; err.style.display='block'; return; }
+
+  const { sheet, mode, idx } = editCtx;
+  if (mode==='add') { getList(sheet).push(entry); }
+  else              { getList(sheet)[idx] = entry; }
+  setDirty(true);
+  closeModal('entry-overlay');
+  renderAll();
+}
+
+function openDelete(sheet, idx) {
+  delCtx = { sheet, idx };
+  document.getElementById('del-name').textContent = getRow(sheet, idx).employee || 'this';
+  openModal('del-overlay');
+}
+function confirmDelete() {
+  const { sheet, idx } = delCtx;
+  getList(sheet).splice(idx, 1);
+  setDirty(true);
+  closeModal('del-overlay');
+  renderAll();
+}
+
+function getList(sheet) {
+  if (sheet==='logs') return DB.logs.entries;
+  return DB[sheet];
+}
+function getRow(sheet, idx) { return getList(sheet)[idx]; }
+
+// =====================================================================
+// ARCHIVE
+// =====================================================================
+function archiveToHistory() {
+  if (!DB.main.length) { alert('Main sheet is empty.'); return; }
+  if (!confirm(`Archive all ${DB.main.length} Main entries to History?`)) return;
+  DB.history.push(...JSON.parse(JSON.stringify(DB.main)));
+  setDirty(true);
+  renderAll();
+  alert(`✓ ${DB.main.length} entries archived to History.`);
+}
+
+// =====================================================================
+// LOG META
+// =====================================================================
+function updateLogMeta() {
+  DB.logs.meta.dateRange   = document.getElementById('log-daterange').value.trim();
+  DB.logs.meta.totalTickets = parseInt(document.getElementById('log-tickets').value)||0;
+  setDirty(true);
+}
+
+// =====================================================================
+// TEMPLATE
+// =====================================================================
+function tplAddTo(sheet) {
+  const entry = {
+    date:     document.getElementById('t-date').value.trim(),
+    employee: document.getElementById('t-emp').value.trim(),
+    assignment: document.getElementById('t-assign').value,
+    status:   document.getElementById('t-status').value,
+    tickets:  parseInt(document.getElementById('t-tickets').value)||0,
+    remarks:  document.getElementById('t-remarks').value.trim()
+  };
+  if (!entry.employee) { alert('Employee name is required.'); return; }
+  getList(sheet).push(entry);
+  setDirty(true);
+  renderAll();
+  alert(`✓ Entry added to ${sheet==='main'?'Main':'History'}.`);
+  clearTemplate();
+}
+function clearTemplate() {
+  ['t-date','t-emp','t-assign','t-status','t-tickets','t-hours','t-remarks'].forEach(id=>{ document.getElementById(id).value=''; });
+}
+
+// =====================================================================
+// RENDER
+// =====================================================================
+function renderAll() {
+  renderMain(); renderHistory(); renderLogs(); updateBadges();
+}
+
+function renderMain() {
+  const q  = (document.getElementById('ms-search').value||'').toLowerCase();
+  const st = document.getElementById('ms-status').value;
+  const as = document.getElementById('ms-assign').value;
+  const rows = DB.main.filter(d =>
+    d.employee.toLowerCase().includes(q) &&
+    (st===''||d.status===st) &&
+    (as===''||d.assignment===as)
+  );
+  const tbody = document.getElementById('main-body');
+  const empty = document.getElementById('main-empty');
+  if (!rows.length) { tbody.innerHTML=''; empty.style.display='block'; }
+  else { empty.style.display='none'; tbody.innerHTML = rows.map((d,i)=>makeRow(d, DB.main.indexOf(d), 'main')).join(''); }
+
+  // Cards (on full unfiltered data)
+  const all = DB.main;
+  document.getElementById('c-total').textContent   = all.length;
+  document.getElementById('c-avail').textContent   = all.filter(d=>d.status==='Available').length;
+  document.getElementById('c-leave').textContent   = all.filter(d=>d.status==='On Leave').length;
+  document.getElementById('c-tickets').textContent = all.reduce((s,d)=>s+(d.tickets||0),0);
+  const dates = [...new Set(all.map(d=>d.date))];
+  document.getElementById('c-date').textContent = dates.length===1 ? dates[0] : `${dates.length} dates`;
+}
+
+function renderHistory() {
+  const q  = (document.getElementById('hs-search').value||'').toLowerCase();
+  const dt = document.getElementById('hs-date').value;
+  const st = document.getElementById('hs-status').value;
+
+  // Populate date filter
+  const allDates = [...new Set(DB.history.map(d=>d.date))].sort();
+  const dsel = document.getElementById('hs-date');
+  const cur  = dsel.value;
+  dsel.innerHTML = '<option value="">All Dates</option>' + allDates.map(d=>`<option${d===cur?' selected':''}>${d}</option>`).join('');
+
+  const rows = DB.history.filter(d =>
+    d.employee.toLowerCase().includes(q) &&
+    (dt===''||d.date===dt) &&
+    (st===''||d.status===st)
+  );
+  document.getElementById('hist-count').textContent = `${rows.length} of ${DB.history.length} records`;
+
+  if (!rows.length) {
+    document.getElementById('hist-body').innerHTML = '<div class="no-rows"><div class="no-rows-icon">🔍</div>No records match.</div>';
+    return;
+  }
+
+  // Group by date
+  const groups = {};
+  rows.forEach(d=>{ if(!groups[d.date]) groups[d.date]=[]; groups[d.date].push(d); });
+  let html = '';
+  for (const [date, grp] of Object.entries(groups)) {
+    const avail  = grp.filter(d=>d.status==='Available').length;
+    const tot    = grp.reduce((s,d)=>s+(d.tickets||0),0);
+    html += `<div class="dg-head"><span class="dg-pill">${date}</span>${grp.length} employees<span class="dg-info">${avail} available · ${tot} tickets</span></div>
+      <div class="tbl-wrap" style="margin-bottom:18px">
+        <table><thead><tr><th>#</th><th>Date</th><th>Employee</th><th>Assignment</th><th>Status</th><th>Tickets</th><th>Remarks</th><th></th></tr></thead>
+        <tbody>${grp.map(d=>makeRow(d, DB.history.indexOf(d), 'history')).join('')}</tbody></table>
+      </div>`;
+  }
+  document.getElementById('hist-body').innerHTML = html;
+}
+
+function renderLogs() {
+  // Meta
+  document.getElementById('log-daterange').value = DB.logs.meta.dateRange || '';
+  document.getElementById('log-tickets').value   = DB.logs.meta.totalTickets ?? '';
+
+  const q  = (document.getElementById('ls-search').value||'').toLowerCase();
+  const st = document.getElementById('ls-status').value;
+  const rows = DB.logs.entries.filter(d =>
+    d.employee.toLowerCase().includes(q) && (st===''||d.status===st)
+  );
+  document.getElementById('logs-count').textContent = `${rows.length} of ${DB.logs.entries.length} records`;
+  const tbody = document.getElementById('logs-body');
+  const empty = document.getElementById('logs-empty');
+  if (!rows.length) { tbody.innerHTML=''; empty.style.display='block'; }
+  else { empty.style.display='none'; tbody.innerHTML = rows.map(d=>makeRow(d, DB.logs.entries.indexOf(d), 'logs')).join(''); }
+}
+
+function updateBadges() {
+  document.getElementById('badge-main').textContent = DB.main.length;
+  document.getElementById('badge-hist').textContent = DB.history.length;
+  document.getElementById('badge-logs').textContent = DB.logs.entries.length;
+}
+
+// =====================================================================
+// TABS
+// =====================================================================
+const TAB_IDS = ['main','history','logs','template'];
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach((b,i)=> b.classList.toggle('active', TAB_IDS[i]===id));
+  document.querySelectorAll('.panel').forEach(p=> p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if (id==='history') renderHistory();
+  if (id==='logs')    renderLogs();
+}
+
+// =====================================================================
+// KEYBOARD / CLICK OUTSIDE
+// =====================================================================
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.querySelectorAll('.overlay.open').forEach(o=>o.classList.remove('open')); });
+document.querySelectorAll('.overlay').forEach(o=> o.addEventListener('click', e=>{ if(e.target===o) o.classList.remove('open'); }));
+
+// =====================================================================
+// INIT
+// =====================================================================
+updatePATUI();
+loadData();
+</script>
+</body>
+</html>
