@@ -176,25 +176,24 @@ tbody td:first-child{padding-left:18px}
 <div class="overlay" id="pat-overlay">
   <div class="modal">
     <div class="modal-head">
-      <h3>🔑 GitHub Access Token</h3>
+      <h3>🔑 Team Save Key</h3>
       <button class="modal-close" onclick="closeModal('pat-overlay')">×</button>
     </div>
     <div class="modal-body">
       <div class="pat-info">
-        To save changes back to GitHub, each editor needs a <strong>Personal Access Token (PAT)</strong>.<br><br>
-        Generate one at: <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens/new</a><br>
-        Set scope: <strong>Contents → Read &amp; Write</strong> on the <code>sanil18/dashboard</code> repo.<br><br>
-        Your token is stored only in <em>your</em> browser — never sent anywhere except GitHub's API.
+        To save changes, enter the shared <strong>team key</strong>.<br><br>
+        One key is shared by the whole team — ask whoever set up the dashboard for it.<br><br>
+        Saves go through a secure proxy that commits to GitHub for you. No GitHub token is stored in your browser.
       </div>
       <div class="fg">
-        <label>Personal Access Token</label>
-        <input type="password" id="pat-input" placeholder="github_pat_..." autocomplete="off"/>
+        <label>Team Key</label>
+        <input type="password" id="pat-input" placeholder="team key…" autocomplete="off"/>
       </div>
       <div class="pat-warn" id="pat-err" style="display:none"></div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-sec" onclick="closeModal('pat-overlay')">Cancel</button>
-      <button class="btn btn-pri" onclick="savePAT()">Save Token</button>
+      <button class="btn btn-pri" onclick="savePAT()">Save Key</button>
     </div>
   </div>
 </div>
@@ -268,8 +267,8 @@ tbody td:first-child{padding-left:18px}
   </div>
   <div class="hactions">
     <div class="load-banner" id="load-banner"><div class="spin"></div> Loading…</div>
-    <button class="pat-btn" onclick="openModal('pat-overlay')" title="Manage GitHub token">
-      <span class="pat-dot" id="pat-dot"></span><span id="pat-label">Set Token</span>
+    <button class="pat-btn" onclick="openModal('pat-overlay')" title="Manage team save key">
+      <span class="pat-dot" id="pat-dot"></span><span id="pat-label">Set Key</span>
     </button>
     <button class="save-btn" id="save-btn" onclick="saveToGitHub()">💾 Save to GitHub</button>
   </div>
@@ -401,23 +400,28 @@ tbody td:first-child{padding-left:18px}
 const GH = { user:'sanil18', repo:'dashboard', branch:'main', file:'data.json' };
 const API_BASE = `https://api.github.com/repos/${GH.user}/${GH.repo}/contents/${GH.file}`;
 
+// Save proxy (Cloudflare Worker). Holds the real GitHub token server-side so
+// it's never exposed in the page. Deploy worker.js, then paste its URL here.
+// See DEPLOY.md.
+const WORKER_URL = 'https://dashboard-save.sanil18.workers.dev';   // deployed save proxy
+
 // =====================================================================
 // STATE
 // =====================================================================
 let DB = { main:[], history:[], logs:{ meta:{ dateRange:'', totalTickets:0 }, entries:[] } };
 let fileSha = null;
 let isDirty = false;
-let pat = localStorage.getItem('task_dash_pat') || '';
+// Shared "team key" that unlocks the save proxy. NOT a GitHub token.
+let pat = localStorage.getItem('task_dash_key') || '';
 let editCtx = { sheet:null, mode:null, idx:null };
 let delCtx  = { sheet:null, idx:null };
 
 // =====================================================================
 // GITHUB API
 // =====================================================================
+// Reads are unauthenticated — the repo is public, so no token is sent to GitHub.
 function ghHeaders() {
-  const h = { 'Content-Type':'application/json' };
-  if (pat) h['Authorization'] = `Bearer ${pat}`;
-  return h;
+  return { 'Content-Type':'application/json' };
 }
 
 async function loadData() {
@@ -434,7 +438,7 @@ async function loadData() {
     // Fallback: raw URL (read-only, no SHA for writes)
     try {
       const raw = await fetch(`https://raw.githubusercontent.com/${GH.user}/${GH.repo}/${GH.branch}/${GH.file}?t=${Date.now()}`);
-      if (raw.ok) { DB = await raw.json(); setLoadBanner(false,'✓ Loaded (read-only — set token to enable saves)'); }
+      if (raw.ok) { DB = await raw.json(); setLoadBanner(false,'✓ Loaded'); }
       else throw new Error('Raw fetch failed');
     } catch(e2) { setLoadBanner(false,'⚠ Could not load data — check connection'); }
   }
@@ -442,24 +446,27 @@ async function loadData() {
 }
 
 async function saveToGitHub() {
+  if (!WORKER_URL) { alert('Save endpoint not set up yet. Add WORKER_URL in index.html — see DEPLOY.md.'); return; }
   if (!pat) { openModal('pat-overlay'); return; }
   const btn = document.getElementById('save-btn');
   btn.textContent = '⏳ Saving…'; btn.classList.add('saving'); btn.classList.remove('saved','err');
   try {
-    const json = JSON.stringify(DB, null, 2);
-    const content = encodeBase64(json);
-    const body = { message:`Dashboard update — ${new Date().toLocaleString()}`, content };
-    if (fileSha) body.sha = fileSha;
-    const res = await fetch(API_BASE, { method:'PUT', headers:ghHeaders(), body:JSON.stringify(body) });
-    if (!res.ok) { const e = await res.json(); throw new Error(e.message || `HTTP ${res.status}`); }
-    const result = await res.json();
-    fileSha = result.content.sha;
+    // Send the data + shared team key to the Worker, which commits it using the
+    // server-side GitHub token. No GitHub token is ever sent from the browser.
+    const res = await fetch(WORKER_URL, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ key: pat, data: DB }),
+    });
+    const out = await res.json().catch(()=>({}));
+    if (!res.ok) throw new Error(out.error || `HTTP ${res.status}`);
+    fileSha = out.sha || fileSha;
     setDirty(false);
     btn.textContent = '✓ Saved'; btn.classList.remove('saving'); btn.classList.add('saved');
     setTimeout(()=>{ btn.classList.remove('visible','saved'); btn.textContent='💾 Save to GitHub'; }, 3000);
   } catch(e) {
     btn.textContent = '✗ Error: '+e.message; btn.classList.remove('saving'); btn.classList.add('err');
-    setTimeout(()=>{ btn.classList.remove('err'); btn.textContent='💾 Save to GitHub'; }, 5000);
+    setTimeout(()=>{ btn.classList.remove('err'); btn.textContent='💾 Save to GitHub'; }, 6000);
   }
 }
 
@@ -469,15 +476,14 @@ async function saveToGitHub() {
 function updatePATUI() {
   const dot = document.getElementById('pat-dot');
   const lbl = document.getElementById('pat-label');
-  if (pat) { dot.classList.add('ok'); lbl.textContent = 'Token Set'; }
-  else      { dot.classList.remove('ok'); lbl.textContent = 'Set Token'; }
+  if (pat) { dot.classList.add('ok'); lbl.textContent = 'Key Set'; }
+  else      { dot.classList.remove('ok'); lbl.textContent = 'Set Key'; }
 }
 function savePAT() {
   const v = document.getElementById('pat-input').value.trim();
-  if (!v) { showPatErr('Please enter a token.'); return; }
-  pat = v; localStorage.setItem('task_dash_pat', pat);
+  if (!v) { showPatErr('Please enter the team key.'); return; }
+  pat = v; localStorage.setItem('task_dash_key', pat);
   updatePATUI(); closeModal('pat-overlay');
-  loadData(); // reload with auth to get SHA
 }
 function showPatErr(msg) {
   const el = document.getElementById('pat-err');
