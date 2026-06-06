@@ -409,7 +409,7 @@ const WORKER_URL = 'https://dashboard-save.sanil18.workers.dev';   // deployed s
 // =====================================================================
 // STATE
 // =====================================================================
-let DB = { main:[], history:[], logs:{ meta:{ dateRange:'', totalTickets:0 }, entries:[] } };
+let DB = { roster:null, main:[], history:[], logs:{ meta:{ dateRange:'', totalTickets:0 }, entries:[] } };
 let fileSha = null;
 let isDirty = false;
 // Shared "team key" that unlocks the save proxy. NOT a GitHub token.
@@ -443,6 +443,7 @@ async function loadData() {
       else throw new Error('Raw fetch failed');
     } catch(e2) { setLoadBanner(false,'⚠ Could not load data — check connection'); }
   }
+  seedTodayFromRoster();   // Main tab = today's slice of the roster (auto-rolls each day)
   renderAll();
 }
 
@@ -500,6 +501,45 @@ function encodeBase64(str) { return btoa(unescape(encodeURIComponent(str))); }
 // Today's date in Nepal time (UTC+5:45), formatted like the data: "June 06, 2026".
 function todayStr() {
   return new Date().toLocaleDateString('en-US', { timeZone:'Asia/Kathmandu', year:'numeric', month:'long', day:'2-digit' });
+}
+
+// =====================================================================
+// ROSTER → TODAY  (Main tab auto-fills from the 4-week roster in data.json)
+// =====================================================================
+// Which week of the 4-week cycle and which weekday "today" is, in Nepal time.
+function rosterPosition() {
+  const r = DB.roster;
+  if (!r || !Array.isArray(r.members) || !r.members.length) return null;
+  const tz = r.timeZone || 'Asia/Kathmandu';
+  const [cy, cm, cd] = (r.cycleStart || '2026-06-01').split('-').map(Number);
+  const [ty, tm, td] = new Intl.DateTimeFormat('en-CA', { timeZone:tz, year:'numeric', month:'2-digit', day:'2-digit' })
+                          .format(new Date()).split('-').map(Number);
+  const diff = Math.round((Date.UTC(ty, tm-1, td) - Date.UTC(cy, cm-1, cd)) / 86400000);
+  return {
+    weekIndex: (((Math.floor(diff / 7)) % 4) + 4) % 4,   // 0..3
+    dow:       (((diff % 7) + 7) % 7)                    // 0=Mon .. 5=Sat, 6=Sun
+  };
+}
+
+// Build today's Main rows from the roster, unless today is already present
+// (seeded earlier in the session, or saved with real ticket data).
+function seedTodayFromRoster() {
+  const pos = rosterPosition();
+  if (!pos || pos.dow > 5) return;                       // no roster, or Sunday (everyone off-shift)
+  const today = todayStr();
+  if (DB.main.some(d => d.date === today)) return;       // don't clobber existing/edited today rows
+  DB.roster.members.forEach(m => {
+    const code = (m.weeks[pos.weekIndex] || [])[pos.dow];
+    if (!code || code === 'O') return;                   // OFF → not on the board today
+    DB.main.push({
+      date: today,
+      employee: m.name,
+      assignment: code === 'K' ? 'KL Update' : 'Success Ticket',  // K=KL, F=flex
+      status: 'Available',
+      tickets: 0,
+      remarks: ''
+    });
+  });
 }
 
 function setLoadBanner(loading, msg) {
