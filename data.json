@@ -1941,7 +1941,9 @@
     {
       "date": "June 06, 2026",
       "employee": "Jenish Shrestha",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -1949,7 +1951,9 @@
     {
       "date": "June 06, 2026",
       "employee": "Avin Guruacharya",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -1989,7 +1993,9 @@
     {
       "date": "June 06, 2026",
       "employee": "Kusum Bista",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -1997,7 +2003,9 @@
     {
       "date": "June 06, 2026",
       "employee": "Shrishak Shrestha",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
