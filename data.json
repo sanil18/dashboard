@@ -2037,7 +2037,14 @@
     {
       "date": "June 06, 2026",
       "employee": "Sanil Dulal",
-      "assignment": "Projects",
+      "assignment": [
+        "Onboarding",
+        "Success Ticket",
+        "Ticket Ops",
+        "Floater",
+        "KL Update",
+        "Projects"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
