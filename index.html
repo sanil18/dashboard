@@ -40,6 +40,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .fg textarea{resize:vertical;min-height:70px}
 .fgrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .fgrow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.fgrow.top{align-items:start}
+
+/* multi-select assignment chips */
+.chk-group{display:flex;flex-wrap:wrap;gap:7px}
+.chk{display:inline-flex;align-items:center;border:1px solid var(--bdr);border-radius:100px;padding:6px 13px;font-size:12.5px;font-weight:500;cursor:pointer;background:var(--sur2);color:var(--mut);transition:all .12s;user-select:none;white-space:nowrap}
+.chk:hover{border-color:var(--mut)}
+.chk input{position:absolute;opacity:0;width:0;height:0}
+.chk:has(input:checked){background:var(--pri);border-color:var(--pri);color:#fff;font-weight:600}
 
 /* PAT MODAL */
 .pat-info{background:var(--pri-s);border:1px solid #bfdbfe;border-radius:var(--rs);padding:12px 14px;font-size:13px;color:#1e40af;line-height:1.6;margin-bottom:16px}
@@ -111,6 +119,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .btn-ghost:hover{background:var(--sur2)}
 .btn-icon-edit{color:var(--mut)}.btn-icon-edit:hover{background:var(--pri-s);color:var(--pri)}
 .btn-icon-del{color:var(--mut)}.btn-icon-del:hover{background:var(--red-b);color:var(--red)}
+.lock-ic{color:#c2c6ce;display:inline-flex;padding:5px;vertical-align:middle}
+.fg input[readonly]{background:var(--bdr);color:var(--mut);cursor:default}
 
 /* TABLE */
 .tbl-wrap{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
@@ -212,21 +222,20 @@ tbody td:first-child{padding-left:18px}
     </div>
     <div class="modal-body">
       <div class="fgrow">
-        <div class="fg"><label>Date</label><input type="text" id="f-date" placeholder="June 04, 2026"/></div>
+        <div class="fg"><label>Date</label><input type="text" id="f-date" readonly title="Entries are logged against today only"/></div>
         <div class="fg"><label>Employee Name</label><input type="text" id="f-emp" placeholder="Full name"/></div>
       </div>
-      <div class="fgrow">
+      <div class="fgrow top">
         <div class="fg">
-          <label>Assignment</label>
-          <select id="f-assign">
-            <option value="">Select...</option>
-            <option>Onboarding</option>
-            <option>Success Ticket</option>
-            <option>Ticket Ops</option>
-            <option>Floater</option>
-            <option>KL Update</option>
-            <option>Projects</option>
-          </select>
+          <label>Assignment <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--mut)">— select one or more</span></label>
+          <div class="chk-group" id="f-assign">
+            <label class="chk"><input type="checkbox" value="Onboarding">Onboarding</label>
+            <label class="chk"><input type="checkbox" value="Success Ticket">Success Ticket</label>
+            <label class="chk"><input type="checkbox" value="Ticket Ops">Ticket Ops</label>
+            <label class="chk"><input type="checkbox" value="Floater">Floater</label>
+            <label class="chk"><input type="checkbox" value="KL Update">KL Update</label>
+            <label class="chk"><input type="checkbox" value="Projects">Projects</label>
+          </div>
         </div>
         <div class="fg">
           <label>Status</label>
@@ -303,7 +312,8 @@ tbody td:first-child{padding-left:18px}
       <select class="fsel" id="ms-status" onchange="renderMain()"><option value="">All Statuses</option><option>Available</option><option>On Leave</option></select>
       <select class="fsel" id="ms-assign" onchange="renderMain()"><option value="">All Assignments</option><option>Onboarding</option><option>Success Ticket</option><option>Ticket Ops</option><option>Floater</option><option>KL Update</option><option>Projects</option></select>
       <div class="sp"></div>
-      <button class="btn btn-pri" onclick="openEntry('main','add')">+ Add Entry</button>
+      <span class="cinfo" id="ms-note"></span>
+      <button class="btn btn-pri" id="btn-add-main" onclick="openEntry('main','add')">+ Add Entry</button>
     </div>
     <div class="tbl-wrap">
       <table><thead><tr><th>#</th><th>Date</th><th>Employee</th><th>Assignment</th><th>Status</th><th>Tickets</th><th>Remarks</th><th></th></tr></thead>
@@ -503,9 +513,13 @@ function setDirty(v) {
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
+// Assignment can be a single string (legacy) or an array (multi-select). Normalize to an array.
+function asgList(a) { return Array.isArray(a) ? a.filter(Boolean) : (a ? [a] : []); }
 function assignBadge(a) {
   const m = { 'Onboarding':'b-onb','Success Ticket':'b-suc','Ticket Ops':'b-top','Floater':'b-flo','KL Update':'b-kl','Projects':'b-prj' };
-  return `<span class="badge ${m[a]||''}">${a||'—'}</span>`;
+  const list = asgList(a);
+  if (!list.length) return `<span class="badge">—</span>`;
+  return list.map(x => `<span class="badge ${m[x]||''}" style="margin:1px 2px 1px 0">${x}</span>`).join('');
 }
 function statusBadge(s) {
   return s==='Available'
@@ -513,6 +527,11 @@ function statusBadge(s) {
     : `<span class="badge b-leave">✗ On Leave</span>`;
 }
 function makeRow(d, idx, sheet) {
+  const locked = d.date !== todayStr();                 // only today is editable
+  const actions = locked
+    ? `<span class="lock-ic" title="Past day — locked"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>`
+    : `<button class="btn-ghost btn-icon-edit" onclick="openEntry('${sheet}','edit',${idx})" title="Edit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+      <button class="btn-ghost btn-icon-del"  onclick="openDelete('${sheet}',${idx})"        title="Delete"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>`;
   return `<tr>
     <td class="row-num">${idx+1}</td>
     <td class="mono">${d.date||'—'}</td>
@@ -521,10 +540,7 @@ function makeRow(d, idx, sheet) {
     <td>${statusBadge(d.status)}</td>
     <td class="mono" style="text-align:center;font-weight:600">${d.tickets??'—'}</td>
     <td class="rem">${d.remarks||'—'}</td>
-    <td class="act-cell">
-      <button class="btn-ghost btn-icon-edit" onclick="openEntry('${sheet}','edit',${idx})" title="Edit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
-      <button class="btn-ghost btn-icon-del"  onclick="openDelete('${sheet}',${idx})"        title="Delete"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
-    </td>
+    <td class="act-cell">${actions}</td>
   </tr>`;
 }
 
@@ -532,13 +548,15 @@ function makeRow(d, idx, sheet) {
 // CRUD
 // =====================================================================
 function openEntry(sheet, mode, idx=null) {
-  editCtx = { sheet, mode, idx };
-  document.getElementById('entry-title').textContent = mode==='add' ? 'Add Entry' : 'Edit Entry';
   const today = todayStr();
   const d = mode==='edit' ? getRow(sheet, idx) : { date:today, employee:'', assignment:'', status:'', tickets:'', remarks:'' };
+  if (d.date !== today) { alert('Past days are locked — only today can be edited.'); return; }   // guard
+  editCtx = { sheet, mode, idx };
+  document.getElementById('entry-title').textContent = mode==='add' ? 'Add Entry' : 'Edit Entry';
   document.getElementById('f-date').value    = d.date    || today;
   document.getElementById('f-emp').value     = d.employee|| '';
-  document.getElementById('f-assign').value  = d.assignment||'';
+  const picked = asgList(d.assignment);
+  document.querySelectorAll('#f-assign input[type=checkbox]').forEach(cb => { cb.checked = picked.includes(cb.value); });
   document.getElementById('f-status').value  = d.status  || '';
   document.getElementById('f-tickets').value = d.tickets ?? '';
   document.getElementById('f-remarks').value = d.remarks || '';
@@ -549,14 +567,15 @@ function submitEntry() {
   const entry = {
     date:     document.getElementById('f-date').value.trim(),
     employee: document.getElementById('f-emp').value.trim(),
-    assignment: document.getElementById('f-assign').value,
+    assignment: [...document.querySelectorAll('#f-assign input:checked')].map(cb => cb.value),
     status:   document.getElementById('f-status').value,
     tickets:  parseInt(document.getElementById('f-tickets').value)||0,
     remarks:  document.getElementById('f-remarks').value.trim()
   };
   const err = document.getElementById('entry-err');
+  if (entry.date !== todayStr()) { err.textContent='Only today can be edited — past days are locked.'; err.style.display='block'; return; }
   if (!entry.employee) { err.textContent='Employee name is required.'; err.style.display='block'; return; }
-  if (!entry.assignment){ err.textContent='Please select an assignment.'; err.style.display='block'; return; }
+  if (!entry.assignment.length){ err.textContent='Please select at least one assignment.'; err.style.display='block'; return; }
   if (!entry.status)   { err.textContent='Please select a status.'; err.style.display='block'; return; }
 
   const { sheet, mode, idx } = editCtx;
@@ -610,13 +629,18 @@ function renderMain() {
   dsel.value = sel;
   const selDate = dsel.value;
 
+  // Past days are read-only: hide "+ Add Entry" and show a note
+  const isToday = (selDate === today);
+  document.getElementById('btn-add-main').style.display = isToday ? '' : 'none';
+  document.getElementById('ms-note').textContent = isToday ? '' : '🔒 Past day — read-only';
+
   // Date-scoped set (drives both the table and the summary cards)
   const scope = DB.main.filter(d => d.date === selDate);
 
   const rows = scope.filter(d =>
     d.employee.toLowerCase().includes(q) &&
     (st===''||d.status===st) &&
-    (as===''||d.assignment===as)
+    (as===''||asgList(d.assignment).includes(as))
   );
   const tbody = document.getElementById('main-body');
   const empty = document.getElementById('main-empty');
