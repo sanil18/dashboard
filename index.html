@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Task Allocator Dashboard</title>
+<title>Resource Mapping</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 :root {
-  --bg:#f0f2f7; --sur:#fff; --sur2:#f7f8fc; --bdr:#e2e6f0;
-  --pri:#2563eb; --pri-s:#eff4ff; --txt:#0f1729; --mut:#6b7a99;
-  --grn:#16a34a; --grn-b:#dcfce7; --red:#dc2626; --red-b:#fee2e2;
-  --amb:#d97706; --amb-b:#fef3c7; --cya:#0891b2; --cya-b:#cffafe;
-  --pur:#7c3aed; --pur-b:#ede9fe; --pnk:#db2777; --pnk-b:#fce7f3;
-  --tea:#059669; --tea-b:#d1fae5;
-  --sh:0 1px 3px rgba(0,0,0,.08),0 1px 8px rgba(0,0,0,.04);
-  --r:10px; --rs:6px;
+  --bg:#f4f4f2; --sur:#ffffff; --sur2:#faf9f7; --bdr:#eae9e4;
+  --pri:#17181c; --pri-s:#f0efec; --txt:#17181c; --mut:#797b82;
+  --grn:#15803d; --grn-b:#e2f3e8; --red:#b3261e; --red-b:#f8e4e2;
+  --amb:#a85a07; --amb-b:#f6ecd6; --cya:#0e7490; --cya-b:#daf0f4;
+  --pur:#6d28d9; --pur-b:#ebe6fa; --pnk:#be185d; --pnk-b:#fae1ec;
+  --tea:#0f766e; --tea-b:#d6efeb;
+  --sh:0 1px 2px rgba(20,20,20,.04),0 4px 18px rgba(20,20,20,.05);
+  --r:12px; --rs:8px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-size:14px}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-.1px}
 
 /* OVERLAY */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px}
@@ -47,20 +47,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .pat-warn{background:var(--red-b);border:1px solid #fca5a5;border-radius:var(--rs);padding:10px 14px;font-size:12.5px;color:#991b1b;margin-top:12px}
 
 /* HEADER */
-.header{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 28px;display:flex;align-items:center;height:60px;box-shadow:var(--sh);position:sticky;top:0;z-index:100;gap:12px}
-.hbrand{display:flex;align-items:center;gap:10px;flex:1}
-.hicon{width:32px;height:32px;background:var(--pri);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;flex-shrink:0}
-.htitle{font-size:16px;font-weight:700;letter-spacing:-.3px}
-.hsubtitle{font-size:11px;color:var(--mut)}
+.header{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 28px;display:flex;align-items:center;height:64px;position:sticky;top:0;z-index:100;gap:12px}
+.hbrand{display:flex;align-items:center;gap:12px;flex:1}
+.havatar{width:38px;height:38px;background:var(--pri);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;letter-spacing:.4px;flex-shrink:0}
+.htitle{font-size:16px;font-weight:700;letter-spacing:-.3px;line-height:1.2}
+.hsubtitle{font-size:12px;color:var(--mut);margin-top:2px}
 
 /* SAVE / PAT STATUS AREA */
 .hactions{display:flex;align-items:center;gap:8px}
 .pat-dot{width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block;margin-right:4px;transition:background .3s}
 .pat-dot.ok{background:var(--grn)}
-.pat-btn{background:none;border:1px solid var(--bdr);border-radius:var(--rs);padding:5px 11px;font:13px 'DM Sans',sans-serif;color:var(--mut);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
-.pat-btn:hover{border-color:var(--pri);color:var(--pri)}
+.pat-btn{background:none;border:1px solid var(--bdr);border-radius:var(--rs);padding:6px 12px;font:500 13px 'DM Sans',sans-serif;color:var(--mut);cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .15s}
+.pat-btn:hover{border-color:var(--mut);color:var(--txt)}
 
-.save-btn{background:var(--pri);color:#fff;border:none;border-radius:var(--rs);padding:7px 16px;font:600 13px 'DM Sans',sans-serif;cursor:pointer;display:none;align-items:center;gap:6px;transition:opacity .15s;white-space:nowrap}
+.save-btn{background:var(--pri);color:#fff;border:none;border-radius:var(--rs);padding:8px 20px;font:600 13px 'DM Sans',sans-serif;cursor:pointer;display:none;align-items:center;gap:6px;transition:opacity .15s;white-space:nowrap}
 .save-btn.visible{display:flex}
 .save-btn:hover{opacity:.88}
 .save-btn.saving{opacity:.65;pointer-events:none}
@@ -72,12 +72,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* TABS */
-.tabs{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 28px;display:flex;gap:0;overflow-x:auto}
-.tab{padding:13px 18px;font:500 13px 'DM Sans',sans-serif;color:var(--mut);background:none;border:none;border-bottom:2.5px solid transparent;cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;transition:all .15s}
-.tab:hover{color:var(--pri);background:var(--pri-s)}
-.tab.active{color:var(--pri);border-bottom-color:var(--pri);font-weight:600}
-.tbadge{background:var(--bdr);color:var(--mut);border-radius:20px;padding:1px 7px;font-size:11px;font-weight:600}
-.tab.active .tbadge{background:var(--pri-s);color:var(--pri)}
+.tabs{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 28px;display:flex;gap:4px;overflow-x:auto}
+.tab{padding:14px 14px;font:500 13.5px 'DM Sans',sans-serif;color:var(--mut);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap;transition:color .15s,border-color .15s}
+.tab:hover{color:var(--txt)}
+.tab.active{color:var(--txt);border-bottom-color:var(--pri);font-weight:600}
+.tbadge{background:var(--sur2);border:1px solid var(--bdr);color:var(--mut);border-radius:20px;padding:1px 8px;font-size:11px;font-weight:600;font-family:'DM Mono',monospace}
+.tab.active .tbadge{background:var(--pri);border-color:var(--pri);color:#fff}
 
 /* CONTENT */
 .content{padding:24px 28px;max-width:1440px;margin:0 auto}
@@ -107,9 +107,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .btn-sec{background:transparent;color:var(--mut);border:1px solid var(--bdr)}.btn-sec:hover{border-color:var(--mut);color:var(--txt)}
 .btn-grn{background:var(--grn);color:#fff}.btn-grn:hover{opacity:.88}
 .btn-red{background:var(--red);color:#fff}.btn-red:hover{opacity:.88}
-.btn-ghost{background:transparent;border:none;color:var(--mut);padding:4px 7px;border-radius:4px;cursor:pointer;font-size:13px;transition:all .15s}
-.btn-ghost:hover{background:var(--bdr);color:var(--txt)}
-.btn-icon-edit{color:var(--pri)}.btn-icon-del{color:var(--red)}
+.btn-ghost{background:transparent;border:none;color:var(--mut);padding:5px;border-radius:6px;cursor:pointer;font-size:13px;transition:all .15s;display:inline-flex;align-items:center;justify-content:center}
+.btn-ghost:hover{background:var(--sur2)}
+.btn-icon-edit{color:var(--mut)}.btn-icon-edit:hover{background:var(--pri-s);color:var(--pri)}
+.btn-icon-del{color:var(--mut)}.btn-icon-del:hover{background:var(--red-b);color:var(--red)}
 
 /* TABLE */
 .tbl-wrap{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
@@ -163,8 +164,12 @@ tbody td:first-child{padding-left:18px}
 .tpl-ref td{padding:8px 12px;font-size:13px;color:#aaa;font-style:italic;border:1px solid var(--bdr)}
 
 /* DIRTY BANNER */
-.dirty-bar{display:none;background:#fefce8;border:1px solid #fde047;border-radius:var(--rs);padding:8px 14px;font-size:12.5px;color:#854d0e;margin-bottom:14px;align-items:center;gap:8px}
+.dirty-bar{display:none;background:var(--sur);border:1px solid var(--bdr);border-left:3px solid var(--amb);border-radius:var(--rs);padding:11px 16px;font-size:13px;font-weight:500;color:var(--txt);margin-bottom:16px;align-items:center;gap:12px;box-shadow:var(--sh)}
 .dirty-bar.show{display:flex}
+.dirty-bar .db-msg{flex:1}
+.dirty-bar .db-dot{width:7px;height:7px;border-radius:50%;background:var(--amb);flex-shrink:0}
+.btn-save-inline{background:var(--pri);color:#fff;border:none;border-radius:var(--rs);padding:6px 18px;font:600 12.5px 'DM Sans',sans-serif;cursor:pointer;transition:opacity .15s}
+.btn-save-inline:hover{opacity:.85}
 
 /* RESPONSIVE */
 @media(max-width:700px){.content{padding:14px}.header{padding:0 14px}.tabs{padding:0 6px}.fgrow,.fgrow3{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}.hsubtitle{display:none}.srch{width:140px}}
@@ -176,7 +181,7 @@ tbody td:first-child{padding-left:18px}
 <div class="overlay" id="pat-overlay">
   <div class="modal">
     <div class="modal-head">
-      <h3>🔑 Team Save Key</h3>
+      <h3>Team Save Key</h3>
       <button class="modal-close" onclick="closeModal('pat-overlay')">×</button>
     </div>
     <div class="modal-body">
@@ -259,10 +264,9 @@ tbody td:first-child{padding-left:18px}
 <!-- ===== HEADER ===== -->
 <div class="header">
   <div class="hbrand">
-    <div class="hicon">📋</div>
     <div>
-      <div class="htitle">Task Allocator Dashboard</div>
-      <div class="hsubtitle">sanil18/dashboard · data.json</div>
+      <div class="htitle" id="h-app">Resource Mapping</div>
+      <div class="hsubtitle" id="h-sub">—</div>
     </div>
   </div>
   <div class="hactions">
@@ -270,16 +274,14 @@ tbody td:first-child{padding-left:18px}
     <button class="pat-btn" onclick="openModal('pat-overlay')" title="Manage team save key">
       <span class="pat-dot" id="pat-dot"></span><span id="pat-label">Set Key</span>
     </button>
-    <button class="save-btn" id="save-btn" onclick="saveToGitHub()">💾 Save to GitHub</button>
+    <button class="save-btn" id="save-btn" onclick="saveToGitHub()">Save</button>
   </div>
 </div>
 
 <!-- ===== TABS ===== -->
 <div class="tabs">
-  <button class="tab active" onclick="switchTab('main')">📊 MAIN Sheet <span class="tbadge" id="badge-main">—</span></button>
-  <button class="tab" onclick="switchTab('history')">🗂 History Index <span class="tbadge" id="badge-hist">—</span></button>
-  <button class="tab" onclick="switchTab('logs')">📝 LOGS <span class="tbadge" id="badge-logs">—</span></button>
-  <button class="tab" onclick="switchTab('template')">🗒 Template</button>
+  <button class="tab active" onclick="switchTab('main')">Main</button>
+  <button class="tab" onclick="switchTab('history')">History</button>
 </div>
 
 <!-- ===== CONTENT ===== -->
@@ -287,7 +289,7 @@ tbody td:first-child{padding-left:18px}
 
   <!-- ── MAIN ── -->
   <div class="panel active" id="panel-main">
-    <div class="dirty-bar" id="dirty-bar">⚠️ You have unsaved changes — click <strong>Save to GitHub</strong> to commit them.</div>
+    <div class="dirty-bar" id="dirty-bar"><span class="db-dot"></span><span class="db-msg">You have unsaved changes</span><button class="btn-save-inline" onclick="saveToGitHub()">Save</button></div>
     <div class="cards">
       <div class="card blue"><div class="card-label">Total Employees</div><div class="card-val" id="c-total">—</div><div class="card-sub" id="c-date">—</div></div>
       <div class="card green"><div class="card-label">Available</div><div class="card-val" id="c-avail">—</div><div class="card-sub">On duty</div></div>
@@ -297,17 +299,17 @@ tbody td:first-child{padding-left:18px}
     <div class="toolbar">
       <span class="tlabel">Filter:</span>
       <input class="srch" id="ms-search" type="text" placeholder="Search employee…" oninput="renderMain()"/>
-      <select class="fsel" id="ms-date" onchange="renderMain()" title="Defaults to today — switch to another date or All Dates"><option value="">All Dates</option></select>
+      <select class="fsel" id="ms-date" onchange="renderMain()" title="Current week — defaults to today"></select>
       <select class="fsel" id="ms-status" onchange="renderMain()"><option value="">All Statuses</option><option>Available</option><option>On Leave</option></select>
       <select class="fsel" id="ms-assign" onchange="renderMain()"><option value="">All Assignments</option><option>Onboarding</option><option>Success Ticket</option><option>Ticket Ops</option><option>Floater</option><option>KL Update</option></select>
       <div class="sp"></div>
-      <button class="btn btn-grn" onclick="archiveToHistory()" title="Copy all Main entries into History">📦 Archive → History</button>
+      <button class="btn btn-grn" onclick="archiveToHistory()" title="Copy all Main entries into History">Archive → History</button>
       <button class="btn btn-pri" onclick="openEntry('main','add')">+ Add Entry</button>
     </div>
     <div class="tbl-wrap">
       <table><thead><tr><th>#</th><th>Date</th><th>Employee</th><th>Assignment</th><th>Status</th><th>Tickets</th><th>Remarks</th><th></th></tr></thead>
       <tbody id="main-body"></tbody></table>
-      <div class="no-rows" id="main-empty" style="display:none"><div class="no-rows-icon">🔍</div>No entries match your filters.</div>
+      <div class="no-rows" id="main-empty" style="display:none"><div class="no-rows-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>No entries match your filters.</div>
     </div>
   </div>
 
@@ -325,73 +327,6 @@ tbody td:first-child{padding-left:18px}
     <div id="hist-body"></div>
   </div>
 
-  <!-- ── LOGS ── -->
-  <div class="panel" id="panel-logs">
-    <div class="log-meta">
-      <div class="lm-card">
-        <div class="lm-label">Date Range</div>
-        <div class="lm-edit-row">
-          <input class="lm-inp" id="log-daterange" type="text" placeholder="June 04, 2026" oninput="updateLogMeta()"/>
-        </div>
-      </div>
-      <div class="lm-card">
-        <div class="lm-label">Total Ticket Count</div>
-        <div class="lm-edit-row">
-          <input class="lm-inp" id="log-tickets" type="number" placeholder="0" oninput="updateLogMeta()"/>
-        </div>
-      </div>
-    </div>
-    <div class="toolbar">
-      <span class="tlabel">Filter:</span>
-      <input class="srch" id="ls-search" type="text" placeholder="Search employee…" oninput="renderLogs()"/>
-      <select class="fsel" id="ls-status" onchange="renderLogs()"><option value="">All Statuses</option><option>Available</option><option>On Leave</option></select>
-      <div class="sp"></div>
-      <span class="cinfo" id="logs-count"></span>
-      <button class="btn btn-pri" onclick="openEntry('logs','add')">+ Add Entry</button>
-    </div>
-    <div class="tbl-wrap">
-      <table><thead><tr><th>#</th><th>Date</th><th>Employee</th><th>Assignment</th><th>Status</th><th>Tickets</th><th>Remarks</th><th></th></tr></thead>
-      <tbody id="logs-body"></tbody></table>
-      <div class="no-rows" id="logs-empty" style="display:none"><div class="no-rows-icon">🔍</div>No log entries match.</div>
-    </div>
-  </div>
-
-  <!-- ── TEMPLATE ── -->
-  <div class="panel" id="panel-template">
-    <div class="tpl-wrap">
-      <div class="tpl-head">📋 Entry Template <span style="font-size:12px;font-weight:400;color:var(--mut);margin-left:4px">— Draft an entry then add to Main or History</span></div>
-      <div class="tpl-body">
-        <div class="fgrow">
-          <div class="fg"><label>Date</label><input type="text" id="t-date" placeholder="June 04, 2026"/></div>
-          <div class="fg"><label>Employee Name</label><input type="text" id="t-emp" placeholder="Full name"/></div>
-        </div>
-        <div class="fgrow3">
-          <div class="fg"><label>Assignment</label>
-            <select id="t-assign"><option value="">Select…</option><option>Onboarding</option><option>Success Ticket</option><option>Ticket Ops</option><option>Floater</option><option>KL Update</option></select>
-          </div>
-          <div class="fg"><label>Status</label>
-            <select id="t-status"><option value="">Select…</option><option>Available</option><option>On Leave</option></select>
-          </div>
-          <div class="fg"><label>Tickets</label><input type="number" id="t-tickets" placeholder="0" min="0"/></div>
-        </div>
-        <div class="fgrow">
-          <div class="fg"><label>Hours</label><input type="number" id="t-hours" placeholder="0.0" min="0" step="0.5"/></div>
-          <div class="fg"><label>Remarks</label><input type="text" id="t-remarks" placeholder="Optional notes"/></div>
-        </div>
-        <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap">
-          <button class="btn btn-pri" onclick="tplAddTo('main')">+ Add to Main</button>
-          <button class="btn btn-grn" onclick="tplAddTo('history')">+ Add to History</button>
-          <button class="btn btn-sec" onclick="clearTemplate()">Clear</button>
-        </div>
-        <div class="tpl-ref">
-          <div class="tpl-ref-label">Column Reference</div>
-          <table><thead><tr><th>Employee</th><th>Assignment</th><th>Status</th><th>Tickets</th><th>Hours</th><th>Remarks</th></tr></thead>
-          <tbody><tr><td>Full name</td><td>Task type</td><td>Available / On Leave</td><td>Count</td><td>Hours worked</td><td>Optional notes</td></tr></tbody></table>
-        </div>
-      </div>
-    </div>
-  </div>
-
 </div><!-- .content -->
 
 <script>
@@ -399,6 +334,7 @@ tbody td:first-child{padding-left:18px}
 // CONFIG
 // =====================================================================
 const GH = { user:'sanil18', repo:'dashboard', branch:'main', file:'data.json' };
+const APP_NAME = 'Resource Mapping';   // the tool's name shown in the header — change freely
 const API_BASE = `https://api.github.com/repos/${GH.user}/${GH.repo}/contents/${GH.file}`;
 
 // Save proxy (Cloudflare Worker). Holds the real GitHub token server-side so
@@ -443,7 +379,7 @@ async function loadData() {
       else throw new Error('Raw fetch failed');
     } catch(e2) { setLoadBanner(false,'⚠ Could not load data — check connection'); }
   }
-  seedTodayFromRoster();   // Main tab = today's slice of the roster (auto-rolls each day)
+  seedCurrentWeekFromRoster();   // Main tab = current week of the roster (auto-rolls each week)
   renderAll();
 }
 
@@ -451,7 +387,7 @@ async function saveToGitHub() {
   if (!WORKER_URL) { alert('Save endpoint not set up yet. Add WORKER_URL in index.html — see DEPLOY.md.'); return; }
   if (!pat) { openModal('pat-overlay'); return; }
   const btn = document.getElementById('save-btn');
-  btn.textContent = '⏳ Saving…'; btn.classList.add('saving'); btn.classList.remove('saved','err');
+  btn.textContent = 'Saving…'; btn.classList.add('saving'); btn.classList.remove('saved','err');
   try {
     // Send the data + shared team key to the Worker, which commits it using the
     // server-side GitHub token. No GitHub token is ever sent from the browser.
@@ -464,11 +400,11 @@ async function saveToGitHub() {
     if (!res.ok) throw new Error(out.error || `HTTP ${res.status}`);
     fileSha = out.sha || fileSha;
     setDirty(false);
-    btn.textContent = '✓ Saved'; btn.classList.remove('saving'); btn.classList.add('saved');
-    setTimeout(()=>{ btn.classList.remove('visible','saved'); btn.textContent='💾 Save to GitHub'; }, 3000);
+    btn.textContent = 'Saved'; btn.classList.remove('saving'); btn.classList.add('saved');
+    setTimeout(()=>{ btn.classList.remove('visible','saved'); btn.textContent='Save'; }, 3000);
   } catch(e) {
-    btn.textContent = '✗ Error: '+e.message; btn.classList.remove('saving'); btn.classList.add('err');
-    setTimeout(()=>{ btn.classList.remove('err'); btn.textContent='💾 Save to GitHub'; }, 6000);
+    btn.textContent = 'Save failed'; btn.classList.remove('saving'); btn.classList.add('err'); console.error('Save failed:', e.message);
+    setTimeout(()=>{ btn.classList.remove('err'); btn.textContent='Save'; }, 6000);
   }
 }
 
@@ -521,23 +457,45 @@ function rosterPosition() {
   };
 }
 
-// Build today's Main rows from the roster, unless today is already present
-// (seeded earlier in the session, or saved with real ticket data).
-function seedTodayFromRoster() {
+// The six working dates (Mon..Sat) of the current calendar week, Nepal time,
+// formatted like the data ("June 06, 2026"). Index 0 = Mon .. 5 = Sat.
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function fmtUTCDate(ms) {
+  const dt = new Date(ms);
+  return `${MONTH_NAMES[dt.getUTCMonth()]} ${String(dt.getUTCDate()).padStart(2,'0')}, ${dt.getUTCFullYear()}`;
+}
+function currentWeekDates() {
+  const tz = (DB.roster && DB.roster.timeZone) || 'Asia/Kathmandu';
+  const cs = (DB.roster && DB.roster.cycleStart) || '2026-06-01';
+  const [cy, cm, cd] = cs.split('-').map(Number);
+  const [ty, tm, td] = new Intl.DateTimeFormat('en-CA', { timeZone:tz, year:'numeric', month:'2-digit', day:'2-digit' })
+                          .format(new Date()).split('-').map(Number);
+  const todayUTC  = Date.UTC(ty, tm-1, td);
+  const dow       = (((Math.round((todayUTC - Date.UTC(cy, cm-1, cd)) / 86400000) % 7) + 7) % 7); // 0=Mon..6=Sun
+  const mondayUTC = todayUTC - dow * 86400000;
+  const count     = dow <= 5 ? dow + 1 : 6;   // Mon..today only — never future days (Sunday → full Mon–Sat)
+  return Array.from({ length:count }, (_, i) => fmtUTCDate(mondayUTC + i * 86400000));
+}
+
+// Fill Main with the WHOLE current week from the roster (each working day),
+// skipping any day that already has rows (saved/edited — don't clobber).
+// weekIndex is constant across a calendar week because the cycle anchor is a Monday.
+function seedCurrentWeekFromRoster() {
   const pos = rosterPosition();
-  if (!pos || pos.dow > 5) return;                       // no roster, or Sunday (everyone off-shift)
-  const today = todayStr();
-  if (DB.main.some(d => d.date === today)) return;       // don't clobber existing/edited today rows
-  DB.roster.members.forEach(m => {
-    const code = (m.weeks[pos.weekIndex] || [])[pos.dow];
-    if (!code || code === 'O') return;                   // OFF → not on the board today
-    DB.main.push({
-      date: today,
-      employee: m.name,
-      assignment: code === 'K' ? 'KL Update' : 'Success Ticket',  // K=KL, F=flex
-      status: 'Available',
-      tickets: 0,
-      remarks: ''
+  if (!pos || !DB.roster || !Array.isArray(DB.roster.members)) return;
+  currentWeekDates().forEach((dateStr, dayIdx) => {        // dayIdx 0=Mon .. 5=Sat
+    if (DB.main.some(d => d.date === dateStr)) return;      // day already present
+    DB.roster.members.forEach(m => {
+      const code = (m.weeks[pos.weekIndex] || [])[dayIdx];
+      if (!code || code === 'O') return;                    // OFF → not on the board
+      DB.main.push({
+        date: dateStr,
+        employee: m.name,
+        assignment: code === 'K' ? 'KL Update' : 'Success Ticket',  // K=KL, F=flex
+        status: 'Available',
+        tickets: 0,
+        remarks: ''
+      });
     });
   });
 }
@@ -553,7 +511,7 @@ function setDirty(v) {
   isDirty = v;
   const btn = document.getElementById('save-btn');
   const bar = document.getElementById('dirty-bar');
-  if (v) { btn.classList.add('visible'); bar.classList.add('show'); btn.textContent='💾 Save to GitHub'; btn.classList.remove('saved','err'); }
+  if (v) { btn.classList.add('visible'); bar.classList.add('show'); btn.textContent='Save'; btn.classList.remove('saved','err'); }
   else   { btn.classList.remove('visible'); bar.classList.remove('show'); }
 }
 
@@ -579,8 +537,8 @@ function makeRow(d, idx, sheet) {
     <td class="mono" style="text-align:center;font-weight:600">${d.tickets??'—'}</td>
     <td class="rem">${d.remarks||'—'}</td>
     <td class="act-cell">
-      <button class="btn-ghost btn-icon-edit" onclick="openEntry('${sheet}','edit',${idx})" title="Edit">✏️</button>
-      <button class="btn-ghost btn-icon-del"  onclick="openDelete('${sheet}',${idx})"        title="Delete">🗑</button>
+      <button class="btn-ghost btn-icon-edit" onclick="openEntry('${sheet}','edit',${idx})" title="Edit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+      <button class="btn-ghost btn-icon-del"  onclick="openDelete('${sheet}',${idx})"        title="Delete"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
     </td>
   </tr>`;
 }
@@ -638,7 +596,6 @@ function confirmDelete() {
 }
 
 function getList(sheet) {
-  if (sheet==='logs') return DB.logs.entries;
   return DB[sheet];
 }
 function getRow(sheet, idx) { return getList(sheet)[idx]; }
@@ -656,42 +613,10 @@ function archiveToHistory() {
 }
 
 // =====================================================================
-// LOG META
-// =====================================================================
-function updateLogMeta() {
-  DB.logs.meta.dateRange   = document.getElementById('log-daterange').value.trim();
-  DB.logs.meta.totalTickets = parseInt(document.getElementById('log-tickets').value)||0;
-  setDirty(true);
-}
-
-// =====================================================================
-// TEMPLATE
-// =====================================================================
-function tplAddTo(sheet) {
-  const entry = {
-    date:     document.getElementById('t-date').value.trim(),
-    employee: document.getElementById('t-emp').value.trim(),
-    assignment: document.getElementById('t-assign').value,
-    status:   document.getElementById('t-status').value,
-    tickets:  parseInt(document.getElementById('t-tickets').value)||0,
-    remarks:  document.getElementById('t-remarks').value.trim()
-  };
-  if (!entry.employee) { alert('Employee name is required.'); return; }
-  getList(sheet).push(entry);
-  setDirty(true);
-  renderAll();
-  alert(`✓ Entry added to ${sheet==='main'?'Main':'History'}.`);
-  clearTemplate();
-}
-function clearTemplate() {
-  ['t-date','t-emp','t-assign','t-status','t-tickets','t-hours','t-remarks'].forEach(id=>{ document.getElementById(id).value=''; });
-}
-
-// =====================================================================
 // RENDER
 // =====================================================================
 function renderAll() {
-  renderMain(); renderHistory(); renderLogs(); updateBadges();
+  renderMain(); renderHistory();
 }
 
 let mainDateInit = false;   // ensures the date filter defaults to "today" only on first render
@@ -700,20 +625,20 @@ function renderMain() {
   const st = document.getElementById('ms-status').value;
   const as = document.getElementById('ms-assign').value;
 
-  // ── Date filter: populate options, default to TODAY (Nepal time) on first load ──
+  // ── Date filter: current week only (Mon–Sat), default TODAY. No "All Dates". ──
   const dsel  = document.getElementById('ms-date');
   const today = todayStr();
-  const dates = [...new Set(DB.main.map(d=>d.date))];
-  if (!dates.includes(today)) dates.push(today);          // today is always selectable
-  dates.sort((a,b)=> new Date(a) - new Date(b));
+  const weekDates = currentWeekDates();                   // 6 dates, Mon..Sat of this week
   const prev = dsel.value;
-  dsel.innerHTML = '<option value="">All Dates</option>' + dates.map(d=>`<option>${d}</option>`).join('');
-  if (!mainDateInit) { dsel.value = today; mainDateInit = true; }   // first render → today only
-  else               { dsel.value = prev; }                         // otherwise keep user's choice
-  const selDate = dsel.value;                                       // '' = All Dates
+  dsel.innerHTML = weekDates.map(d=>`<option>${d}</option>`).join('');
+  let sel;
+  if (!mainDateInit) { sel = weekDates.includes(today) ? today : weekDates[weekDates.length-1]; mainDateInit = true; }
+  else               { sel = weekDates.includes(prev)  ? prev  : (weekDates.includes(today) ? today : weekDates[weekDates.length-1]); }
+  dsel.value = sel;
+  const selDate = dsel.value;
 
   // Date-scoped set (drives both the table and the summary cards)
-  const scope = selDate === '' ? DB.main : DB.main.filter(d => d.date === selDate);
+  const scope = DB.main.filter(d => d.date === selDate);
 
   const rows = scope.filter(d =>
     d.employee.toLowerCase().includes(q) &&
@@ -730,9 +655,7 @@ function renderMain() {
   document.getElementById('c-avail').textContent   = scope.filter(d=>d.status==='Available').length;
   document.getElementById('c-leave').textContent   = scope.filter(d=>d.status==='On Leave').length;
   document.getElementById('c-tickets').textContent = scope.reduce((s,d)=>s+(d.tickets||0),0);
-  const scopeDates = [...new Set(scope.map(d=>d.date))];
-  document.getElementById('c-date').textContent =
-    selDate ? selDate : (scopeDates.length===1 ? scopeDates[0] : `${scopeDates.length} dates`);
+  document.getElementById('c-date').textContent = selDate;
 }
 
 function renderHistory() {
@@ -754,7 +677,7 @@ function renderHistory() {
   document.getElementById('hist-count').textContent = `${rows.length} of ${DB.history.length} records`;
 
   if (!rows.length) {
-    document.getElementById('hist-body').innerHTML = '<div class="no-rows"><div class="no-rows-icon">🔍</div>No records match.</div>';
+    document.getElementById('hist-body').innerHTML = '<div class="no-rows"><div class="no-rows-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>No records match.</div>';
     return;
   }
 
@@ -774,39 +697,16 @@ function renderHistory() {
   document.getElementById('hist-body').innerHTML = html;
 }
 
-function renderLogs() {
-  // Meta
-  document.getElementById('log-daterange').value = DB.logs.meta.dateRange || '';
-  document.getElementById('log-tickets').value   = DB.logs.meta.totalTickets ?? '';
-
-  const q  = (document.getElementById('ls-search').value||'').toLowerCase();
-  const st = document.getElementById('ls-status').value;
-  const rows = DB.logs.entries.filter(d =>
-    d.employee.toLowerCase().includes(q) && (st===''||d.status===st)
-  );
-  document.getElementById('logs-count').textContent = `${rows.length} of ${DB.logs.entries.length} records`;
-  const tbody = document.getElementById('logs-body');
-  const empty = document.getElementById('logs-empty');
-  if (!rows.length) { tbody.innerHTML=''; empty.style.display='block'; }
-  else { empty.style.display='none'; tbody.innerHTML = rows.map(d=>makeRow(d, DB.logs.entries.indexOf(d), 'logs')).join(''); }
-}
-
-function updateBadges() {
-  document.getElementById('badge-main').textContent = DB.main.length;
-  document.getElementById('badge-hist').textContent = DB.history.length;
-  document.getElementById('badge-logs').textContent = DB.logs.entries.length;
-}
 
 // =====================================================================
 // TABS
 // =====================================================================
-const TAB_IDS = ['main','history','logs','template'];
+const TAB_IDS = ['main','history'];
 function switchTab(id) {
   document.querySelectorAll('.tab').forEach((b,i)=> b.classList.toggle('active', TAB_IDS[i]===id));
   document.querySelectorAll('.panel').forEach(p=> p.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
   if (id==='history') renderHistory();
-  if (id==='logs')    renderLogs();
 }
 
 // =====================================================================
@@ -816,10 +716,44 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.querySel
 document.querySelectorAll('.overlay').forEach(o=> o.addEventListener('click', e=>{ if(e.target===o) o.classList.remove('open'); }));
 
 // =====================================================================
+// AUTO-ROLL AT NEPAL MIDNIGHT  (no cron — pure client-side timer)
+// =====================================================================
+let lastSeenDay = '';
+function msToNepalMidnight() {
+  const f = new Intl.DateTimeFormat('en-GB', { timeZone:'Asia/Kathmandu', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
+  const [h, m, s] = f.format(new Date()).split(':').map(Number);
+  return 86400000 - ((h * 60 + m) * 60 + s) * 1000 + 1500;   // ms until next midnight (+1.5s margin)
+}
+function rollToToday() {
+  mainDateInit = false;            // re-default the date filter to the new "today"
+  seedCurrentWeekFromRoster();     // add the new day/week if needed (never clobbers saved rows)
+  lastSeenDay = todayStr();
+  initHeader();
+  renderAll();
+}
+
+// Populate the header: app name + today's date (Nepal time).
+function initHeader() {
+  document.getElementById('h-app').textContent = APP_NAME;
+  document.getElementById('h-sub').textContent =
+    new Date().toLocaleDateString('en-US', { timeZone:'Asia/Kathmandu', weekday:'long', month:'long', day:'2-digit', year:'numeric' });
+}
+function scheduleNepalMidnight() {
+  setTimeout(() => { rollToToday(); scheduleNepalMidnight(); }, msToNepalMidnight());
+}
+// Catch laptops that wake from sleep across midnight.
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && todayStr() !== lastSeenDay) rollToToday();
+});
+
+// =====================================================================
 // INIT
 // =====================================================================
+initHeader();
 updatePATUI();
 loadData();
+lastSeenDay = todayStr();
+scheduleNepalMidnight();
 </script>
 </body>
 </html>
