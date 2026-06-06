@@ -651,7 +651,72 @@
       }
     ]
   },
-  "main": [],
+  "main": [
+    {
+      "date": "June 06, 2026",
+      "employee": "Jenish Shrestha",
+      "assignment": "Success Ticket",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 06, 2026",
+      "employee": "Avin Guruacharya",
+      "assignment": "Success Ticket",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 06, 2026",
+      "employee": "Shreejan Shrestha",
+      "assignment": "Success Ticket",
+      "status": "On Leave",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 06, 2026",
+      "employee": "Sushant Gurung",
+      "assignment": "Success Ticket",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 06, 2026",
+      "employee": "Shruti Sah",
+      "assignment": "KL Update",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 06, 2026",
+      "employee": "Pradeep Karki",
+      "assignment": "KL Update",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 06, 2026",
+      "employee": "Kusum Bista",
+      "assignment": "Success Ticket",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 06, 2026",
+      "employee": "Shrishak Shrestha",
+      "assignment": "Success Ticket",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    }
+  ],
   "history": [],
   "logs": {
     "meta": {
