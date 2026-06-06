@@ -297,6 +297,7 @@ tbody td:first-child{padding-left:18px}
     <div class="toolbar">
       <span class="tlabel">Filter:</span>
       <input class="srch" id="ms-search" type="text" placeholder="Search employee…" oninput="renderMain()"/>
+      <select class="fsel" id="ms-date" onchange="renderMain()" title="Defaults to today — switch to another date or All Dates"><option value="">All Dates</option></select>
       <select class="fsel" id="ms-status" onchange="renderMain()"><option value="">All Statuses</option><option>Available</option><option>On Leave</option></select>
       <select class="fsel" id="ms-assign" onchange="renderMain()"><option value="">All Assignments</option><option>Onboarding</option><option>Success Ticket</option><option>Ticket Ops</option><option>Floater</option><option>KL Update</option></select>
       <div class="sp"></div>
@@ -496,6 +497,11 @@ function showPatErr(msg) {
 function decodeBase64(str) { return decodeURIComponent(escape(atob(str.replace(/\s/g,'')))); }
 function encodeBase64(str) { return btoa(unescape(encodeURIComponent(str))); }
 
+// Today's date in Nepal time (UTC+5:45), formatted like the data: "June 06, 2026".
+function todayStr() {
+  return new Date().toLocaleDateString('en-US', { timeZone:'Asia/Kathmandu', year:'numeric', month:'long', day:'2-digit' });
+}
+
 function setLoadBanner(loading, msg) {
   const el = document.getElementById('load-banner');
   if (loading) { el.innerHTML = '<div class="spin"></div> Loading…'; el.style.display='flex'; }
@@ -545,7 +551,7 @@ function makeRow(d, idx, sheet) {
 function openEntry(sheet, mode, idx=null) {
   editCtx = { sheet, mode, idx };
   document.getElementById('entry-title').textContent = mode==='add' ? 'Add Entry' : 'Edit Entry';
-  const today = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'2-digit'});
+  const today = todayStr();
   const d = mode==='edit' ? getRow(sheet, idx) : { date:today, employee:'', assignment:'', status:'', tickets:'', remarks:'' };
   document.getElementById('f-date').value    = d.date    || today;
   document.getElementById('f-emp').value     = d.employee|| '';
@@ -648,11 +654,28 @@ function renderAll() {
   renderMain(); renderHistory(); renderLogs(); updateBadges();
 }
 
+let mainDateInit = false;   // ensures the date filter defaults to "today" only on first render
 function renderMain() {
   const q  = (document.getElementById('ms-search').value||'').toLowerCase();
   const st = document.getElementById('ms-status').value;
   const as = document.getElementById('ms-assign').value;
-  const rows = DB.main.filter(d =>
+
+  // ── Date filter: populate options, default to TODAY (Nepal time) on first load ──
+  const dsel  = document.getElementById('ms-date');
+  const today = todayStr();
+  const dates = [...new Set(DB.main.map(d=>d.date))];
+  if (!dates.includes(today)) dates.push(today);          // today is always selectable
+  dates.sort((a,b)=> new Date(a) - new Date(b));
+  const prev = dsel.value;
+  dsel.innerHTML = '<option value="">All Dates</option>' + dates.map(d=>`<option>${d}</option>`).join('');
+  if (!mainDateInit) { dsel.value = today; mainDateInit = true; }   // first render → today only
+  else               { dsel.value = prev; }                         // otherwise keep user's choice
+  const selDate = dsel.value;                                       // '' = All Dates
+
+  // Date-scoped set (drives both the table and the summary cards)
+  const scope = selDate === '' ? DB.main : DB.main.filter(d => d.date === selDate);
+
+  const rows = scope.filter(d =>
     d.employee.toLowerCase().includes(q) &&
     (st===''||d.status===st) &&
     (as===''||d.assignment===as)
@@ -660,16 +683,16 @@ function renderMain() {
   const tbody = document.getElementById('main-body');
   const empty = document.getElementById('main-empty');
   if (!rows.length) { tbody.innerHTML=''; empty.style.display='block'; }
-  else { empty.style.display='none'; tbody.innerHTML = rows.map((d,i)=>makeRow(d, DB.main.indexOf(d), 'main')).join(''); }
+  else { empty.style.display='none'; tbody.innerHTML = rows.map(d=>makeRow(d, DB.main.indexOf(d), 'main')).join(''); }
 
-  // Cards (on full unfiltered data)
-  const all = DB.main;
-  document.getElementById('c-total').textContent   = all.length;
-  document.getElementById('c-avail').textContent   = all.filter(d=>d.status==='Available').length;
-  document.getElementById('c-leave').textContent   = all.filter(d=>d.status==='On Leave').length;
-  document.getElementById('c-tickets').textContent = all.reduce((s,d)=>s+(d.tickets||0),0);
-  const dates = [...new Set(all.map(d=>d.date))];
-  document.getElementById('c-date').textContent = dates.length===1 ? dates[0] : `${dates.length} dates`;
+  // Cards (scoped to the selected date)
+  document.getElementById('c-total').textContent   = scope.length;
+  document.getElementById('c-avail').textContent   = scope.filter(d=>d.status==='Available').length;
+  document.getElementById('c-leave').textContent   = scope.filter(d=>d.status==='On Leave').length;
+  document.getElementById('c-tickets').textContent = scope.reduce((s,d)=>s+(d.tickets||0),0);
+  const scopeDates = [...new Set(scope.map(d=>d.date))];
+  document.getElementById('c-date').textContent =
+    selDate ? selDate : (scopeDates.length===1 ? scopeDates[0] : `${scopeDates.length} dates`);
 }
 
 function renderHistory() {
