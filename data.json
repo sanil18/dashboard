@@ -1969,7 +1969,9 @@
     {
       "date": "June 06, 2026",
       "employee": "Sushant Gurung",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "Onboarding"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
