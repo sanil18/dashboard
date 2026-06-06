@@ -346,6 +346,196 @@
         ]
       },
       {
+        "name": "Shiraj Baidhya",
+        "team": "A",
+        "weeks": [
+          [
+            "F",
+            "K",
+            "K",
+            "K",
+            "F",
+            "O"
+          ],
+          [
+            "K",
+            "K",
+            "K",
+            "F",
+            "F",
+            "O"
+          ],
+          [
+            "K",
+            "F",
+            "K",
+            "K",
+            "F",
+            "O"
+          ],
+          [
+            "K",
+            "K",
+            "F",
+            "K",
+            "F",
+            "O"
+          ]
+        ]
+      },
+      {
+        "name": "Avishek Rijal",
+        "team": "A",
+        "weeks": [
+          [
+            "F",
+            "K",
+            "K",
+            "K",
+            "F",
+            "O"
+          ],
+          [
+            "K",
+            "F",
+            "K",
+            "K",
+            "F",
+            "O"
+          ],
+          [
+            "K",
+            "K",
+            "K",
+            "F",
+            "F",
+            "O"
+          ],
+          [
+            "K",
+            "K",
+            "F",
+            "K",
+            "F",
+            "O"
+          ]
+        ]
+      },
+      {
+        "name": "Simran Bhandari",
+        "team": "A",
+        "weeks": [
+          [
+            "K",
+            "K",
+            "K",
+            "F",
+            "F",
+            "O"
+          ],
+          [
+            "F",
+            "K",
+            "K",
+            "K",
+            "F",
+            "O"
+          ],
+          [
+            "K",
+            "K",
+            "F",
+            "K",
+            "F",
+            "O"
+          ],
+          [
+            "K",
+            "F",
+            "K",
+            "K",
+            "F",
+            "O"
+          ]
+        ]
+      },
+      {
+        "name": "Binit Karna",
+        "team": "A",
+        "weeks": [
+          [
+            "K",
+            "K",
+            "F",
+            "K",
+            "F",
+            "O"
+          ],
+          [
+            "K",
+            "F",
+            "K",
+            "K",
+            "F",
+            "O"
+          ],
+          [
+            "F",
+            "K",
+            "K",
+            "K",
+            "F",
+            "O"
+          ],
+          [
+            "K",
+            "K",
+            "K",
+            "F",
+            "F",
+            "O"
+          ]
+        ]
+      },
+      {
+        "name": "Sagar Koju",
+        "team": "A",
+        "weeks": [
+          [
+            "K",
+            "K",
+            "F",
+            "K",
+            "F",
+            "O"
+          ],
+          [
+            "F",
+            "K",
+            "K",
+            "K",
+            "F",
+            "O"
+          ],
+          [
+            "K",
+            "K",
+            "K",
+            "F",
+            "F",
+            "O"
+          ],
+          [
+            "K",
+            "F",
+            "K",
+            "K",
+            "F",
+            "O"
+          ]
+        ]
+      },
+      {
         "name": "Jenish Shrestha",
         "team": "B",
         "weeks": [
@@ -648,75 +838,162 @@
             "F"
           ]
         ]
+      },
+      {
+        "name": "Ajal Man Tuladhar",
+        "team": "B",
+        "weeks": [
+          [
+            "O",
+            "K",
+            "K",
+            "K",
+            "F",
+            "F"
+          ],
+          [
+            "O",
+            "K",
+            "F",
+            "K",
+            "K",
+            "F"
+          ],
+          [
+            "O",
+            "F",
+            "K",
+            "K",
+            "F",
+            "K"
+          ],
+          [
+            "O",
+            "K",
+            "K",
+            "F",
+            "K",
+            "F"
+          ]
+        ]
+      },
+      {
+        "name": "Shikhar Acharya",
+        "team": "B",
+        "weeks": [
+          [
+            "O",
+            "K",
+            "K",
+            "K",
+            "F",
+            "F"
+          ],
+          [
+            "O",
+            "F",
+            "K",
+            "K",
+            "F",
+            "K"
+          ],
+          [
+            "O",
+            "K",
+            "K",
+            "F",
+            "K",
+            "F"
+          ],
+          [
+            "O",
+            "K",
+            "F",
+            "K",
+            "K",
+            "F"
+          ]
+        ]
+      },
+      {
+        "name": "Abiral Timilsina",
+        "team": "B",
+        "weeks": [
+          [
+            "O",
+            "K",
+            "F",
+            "K",
+            "K",
+            "F"
+          ],
+          [
+            "O",
+            "F",
+            "K",
+            "K",
+            "F",
+            "K"
+          ],
+          [
+            "O",
+            "K",
+            "K",
+            "F",
+            "K",
+            "F"
+          ],
+          [
+            "O",
+            "K",
+            "K",
+            "K",
+            "F",
+            "F"
+          ]
+        ]
+      },
+      {
+        "name": "Sanil Dulal",
+        "team": "B",
+        "weeks": [
+          [
+            "O",
+            "K",
+            "F",
+            "K",
+            "K",
+            "F"
+          ],
+          [
+            "O",
+            "K",
+            "K",
+            "F",
+            "K",
+            "F"
+          ],
+          [
+            "O",
+            "K",
+            "K",
+            "K",
+            "F",
+            "F"
+          ],
+          [
+            "O",
+            "F",
+            "K",
+            "K",
+            "F",
+            "K"
+          ]
+        ]
       }
     ]
   },
-  "main": [
-    {
-      "date": "June 06, 2026",
-      "employee": "Jenish Shrestha",
-      "assignment": "Success Ticket",
-      "status": "Available",
-      "tickets": 4,
-      "remarks": ""
-    },
-    {
-      "date": "June 06, 2026",
-      "employee": "Avin Guruacharya",
-      "assignment": "Success Ticket",
-      "status": "Available",
-      "tickets": 0,
-      "remarks": ""
-    },
-    {
-      "date": "June 06, 2026",
-      "employee": "Shreejan Shrestha",
-      "assignment": "Success Ticket",
-      "status": "On Leave",
-      "tickets": 0,
-      "remarks": ""
-    },
-    {
-      "date": "June 06, 2026",
-      "employee": "Sushant Gurung",
-      "assignment": "Success Ticket",
-      "status": "Available",
-      "tickets": 0,
-      "remarks": ""
-    },
-    {
-      "date": "June 06, 2026",
-      "employee": "Shruti Sah",
-      "assignment": "KL Update",
-      "status": "Available",
-      "tickets": 0,
-      "remarks": ""
-    },
-    {
-      "date": "June 06, 2026",
-      "employee": "Pradeep Karki",
-      "assignment": "KL Update",
-      "status": "Available",
-      "tickets": 0,
-      "remarks": ""
-    },
-    {
-      "date": "June 06, 2026",
-      "employee": "Kusum Bista",
-      "assignment": "Success Ticket",
-      "status": "Available",
-      "tickets": 0,
-      "remarks": ""
-    },
-    {
-      "date": "June 06, 2026",
-      "employee": "Shrishak Shrestha",
-      "assignment": "Success Ticket",
-      "status": "Available",
-      "tickets": 0,
-      "remarks": ""
-    }
-  ],
+  "main": [],
   "history": [],
   "logs": {
     "meta": {
