@@ -139,6 +139,7 @@ tbody td:first-child{padding-left:18px}
 .b-top{background:var(--amb-b);color:var(--amb)}
 .b-flo{background:var(--pnk-b);color:var(--pnk)}
 .b-kl{background:var(--tea-b);color:var(--tea)}
+.b-prj{background:#e5e7f0;color:#454e6b}
 
 /* DATE GROUP HEADER (History) */
 .dg-head{background:var(--pri-s);color:var(--pri);padding:9px 16px;border-radius:var(--rs);font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;margin:18px 0 8px}
@@ -225,6 +226,7 @@ tbody td:first-child{padding-left:18px}
             <option>Ticket Ops</option>
             <option>Floater</option>
             <option>KL Update</option>
+            <option>Projects</option>
           </select>
         </div>
         <div class="fg">
@@ -281,7 +283,6 @@ tbody td:first-child{padding-left:18px}
 <!-- ===== TABS ===== -->
 <div class="tabs">
   <button class="tab active" onclick="switchTab('main')">Main</button>
-  <button class="tab" onclick="switchTab('history')">History</button>
 </div>
 
 <!-- ===== CONTENT ===== -->
@@ -301,9 +302,8 @@ tbody td:first-child{padding-left:18px}
       <input class="srch" id="ms-search" type="text" placeholder="Search employee…" oninput="renderMain()"/>
       <select class="fsel" id="ms-date" onchange="renderMain()" title="Current week — defaults to today"></select>
       <select class="fsel" id="ms-status" onchange="renderMain()"><option value="">All Statuses</option><option>Available</option><option>On Leave</option></select>
-      <select class="fsel" id="ms-assign" onchange="renderMain()"><option value="">All Assignments</option><option>Onboarding</option><option>Success Ticket</option><option>Ticket Ops</option><option>Floater</option><option>KL Update</option></select>
+      <select class="fsel" id="ms-assign" onchange="renderMain()"><option value="">All Assignments</option><option>Onboarding</option><option>Success Ticket</option><option>Ticket Ops</option><option>Floater</option><option>KL Update</option><option>Projects</option></select>
       <div class="sp"></div>
-      <button class="btn btn-grn" onclick="archiveToHistory()" title="Copy all Main entries into History">Archive → History</button>
       <button class="btn btn-pri" onclick="openEntry('main','add')">+ Add Entry</button>
     </div>
     <div class="tbl-wrap">
@@ -311,20 +311,6 @@ tbody td:first-child{padding-left:18px}
       <tbody id="main-body"></tbody></table>
       <div class="no-rows" id="main-empty" style="display:none"><div class="no-rows-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>No entries match your filters.</div>
     </div>
-  </div>
-
-  <!-- ── HISTORY ── -->
-  <div class="panel" id="panel-history">
-    <div class="toolbar">
-      <span class="tlabel">Filter:</span>
-      <input class="srch" id="hs-search" type="text" placeholder="Search employee…" oninput="renderHistory()"/>
-      <select class="fsel" id="hs-date" onchange="renderHistory()"><option value="">All Dates</option></select>
-      <select class="fsel" id="hs-status" onchange="renderHistory()"><option value="">All Statuses</option><option>Available</option><option>On Leave</option></select>
-      <div class="sp"></div>
-      <span class="cinfo" id="hist-count"></span>
-      <button class="btn btn-pri" onclick="openEntry('history','add')">+ Add Entry</button>
-    </div>
-    <div id="hist-body"></div>
   </div>
 
 </div><!-- .content -->
@@ -345,7 +331,7 @@ const WORKER_URL = 'https://dashboard-save.sanil18.workers.dev';   // deployed s
 // =====================================================================
 // STATE
 // =====================================================================
-let DB = { roster:null, main:[], history:[], logs:{ meta:{ dateRange:'', totalTickets:0 }, entries:[] } };
+let DB = { roster:null, main:[] };
 let fileSha = null;
 let isDirty = false;
 // Shared "team key" that unlocks the save proxy. NOT a GitHub token.
@@ -519,7 +505,7 @@ function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 function assignBadge(a) {
-  const m = { 'Onboarding':'b-onb','Success Ticket':'b-suc','Ticket Ops':'b-top','Floater':'b-flo','KL Update':'b-kl' };
+  const m = { 'Onboarding':'b-onb','Success Ticket':'b-suc','Ticket Ops':'b-top','Floater':'b-flo','KL Update':'b-kl','Projects':'b-prj' };
   return `<span class="badge ${m[a]||''}">${a||'—'}</span>`;
 }
 function statusBadge(s) {
@@ -601,22 +587,10 @@ function getList(sheet) {
 function getRow(sheet, idx) { return getList(sheet)[idx]; }
 
 // =====================================================================
-// ARCHIVE
-// =====================================================================
-function archiveToHistory() {
-  if (!DB.main.length) { alert('Main sheet is empty.'); return; }
-  if (!confirm(`Archive all ${DB.main.length} Main entries to History?`)) return;
-  DB.history.push(...JSON.parse(JSON.stringify(DB.main)));
-  setDirty(true);
-  renderAll();
-  alert(`✓ ${DB.main.length} entries archived to History.`);
-}
-
-// =====================================================================
 // RENDER
 // =====================================================================
 function renderAll() {
-  renderMain(); renderHistory();
+  renderMain();
 }
 
 let mainDateInit = false;   // ensures the date filter defaults to "today" only on first render
@@ -658,55 +632,14 @@ function renderMain() {
   document.getElementById('c-date').textContent = selDate;
 }
 
-function renderHistory() {
-  const q  = (document.getElementById('hs-search').value||'').toLowerCase();
-  const dt = document.getElementById('hs-date').value;
-  const st = document.getElementById('hs-status').value;
-
-  // Populate date filter
-  const allDates = [...new Set(DB.history.map(d=>d.date))].sort();
-  const dsel = document.getElementById('hs-date');
-  const cur  = dsel.value;
-  dsel.innerHTML = '<option value="">All Dates</option>' + allDates.map(d=>`<option${d===cur?' selected':''}>${d}</option>`).join('');
-
-  const rows = DB.history.filter(d =>
-    d.employee.toLowerCase().includes(q) &&
-    (dt===''||d.date===dt) &&
-    (st===''||d.status===st)
-  );
-  document.getElementById('hist-count').textContent = `${rows.length} of ${DB.history.length} records`;
-
-  if (!rows.length) {
-    document.getElementById('hist-body').innerHTML = '<div class="no-rows"><div class="no-rows-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>No records match.</div>';
-    return;
-  }
-
-  // Group by date
-  const groups = {};
-  rows.forEach(d=>{ if(!groups[d.date]) groups[d.date]=[]; groups[d.date].push(d); });
-  let html = '';
-  for (const [date, grp] of Object.entries(groups)) {
-    const avail  = grp.filter(d=>d.status==='Available').length;
-    const tot    = grp.reduce((s,d)=>s+(d.tickets||0),0);
-    html += `<div class="dg-head"><span class="dg-pill">${date}</span>${grp.length} employees<span class="dg-info">${avail} available · ${tot} tickets</span></div>
-      <div class="tbl-wrap" style="margin-bottom:18px">
-        <table><thead><tr><th>#</th><th>Date</th><th>Employee</th><th>Assignment</th><th>Status</th><th>Tickets</th><th>Remarks</th><th></th></tr></thead>
-        <tbody>${grp.map(d=>makeRow(d, DB.history.indexOf(d), 'history')).join('')}</tbody></table>
-      </div>`;
-  }
-  document.getElementById('hist-body').innerHTML = html;
-}
-
-
 // =====================================================================
 // TABS
 // =====================================================================
-const TAB_IDS = ['main','history'];
+const TAB_IDS = ['main'];
 function switchTab(id) {
   document.querySelectorAll('.tab').forEach((b,i)=> b.classList.toggle('active', TAB_IDS[i]===id));
   document.querySelectorAll('.panel').forEach(p=> p.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
-  if (id==='history') renderHistory();
 }
 
 // =====================================================================

@@ -993,13 +993,5 @@
       }
     ]
   },
-  "main": [],
-  "history": [],
-  "logs": {
-    "meta": {
-      "dateRange": "",
-      "totalTickets": 0
-    },
-    "entries": []
-  }
+  "main": []
 }
