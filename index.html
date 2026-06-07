@@ -434,6 +434,14 @@ function todayStr() {
   return new Date().toLocaleDateString('en-US', { timeZone:'Asia/Kathmandu', year:'numeric', month:'long', day:'2-digit' });
 }
 
+// A roster REST day = Sunday — both teams are off (Team A: Sat & Sun · Team B: Sun & Mon),
+// so nobody is on rotation and the board starts fresh. Date strings ("June 07, 2026") are
+// unambiguous calendar dates, so getDay()===0 (Sunday) is timezone-safe here.
+function isRestDate(dateStr) {
+  const d = new Date(dateStr);
+  return !isNaN(d) && d.getDay() === 0;
+}
+
 // =====================================================================
 // ROSTER → TODAY  (Main tab auto-fills from the 4-week roster in data.json)
 // =====================================================================
@@ -468,7 +476,7 @@ function currentWeekDates() {
   const todayUTC  = Date.UTC(ty, tm-1, td);
   const dow       = (((Math.round((todayUTC - Date.UTC(cy, cm-1, cd)) / 86400000) % 7) + 7) % 7); // 0=Mon..6=Sun
   const mondayUTC = todayUTC - dow * 86400000;
-  const count     = dow <= 5 ? dow + 1 : 6;   // Mon..today only — never future days (Sunday → full Mon–Sat)
+  const count     = dow + 1;   // Mon..today inclusive — never future days (Sunday → Mon..Sun, so today is selectable)
   return Array.from({ length:count }, (_, i) => fmtUTCDate(mondayUTC + i * 86400000));
 }
 
@@ -629,13 +637,17 @@ function renderMain() {
   dsel.value = sel;
   const selDate = dsel.value;
 
-  // Past days are read-only: hide "+ Add Entry" and show a note
+  // Sunday is a rest day (nobody on rotation); past working days are read-only.
   const isToday = (selDate === today);
-  document.getElementById('btn-add-main').style.display = isToday ? '' : 'none';
-  document.getElementById('ms-note').textContent = isToday ? '' : '🔒 Past day — read-only';
+  const restDay = isRestDate(selDate);
+  document.getElementById('btn-add-main').style.display = (isToday && !restDay) ? '' : 'none';
+  document.getElementById('ms-note').textContent =
+    restDay ? '🌙 Rest day — no rotation' : (isToday ? '' : '🔒 Past day — read-only');
 
-  // Date-scoped set (drives both the table and the summary cards)
-  const scope = DB.main.filter(d => d.date === selDate);
+  // Date-scoped set (drives both the table and the summary cards).
+  // On a rest day nobody works, so the board is always empty — never carry the
+  // previous day's rows/edits into it.
+  const scope = restDay ? [] : DB.main.filter(d => d.date === selDate);
 
   const rows = scope.filter(d =>
     d.employee.toLowerCase().includes(q) &&
@@ -644,7 +656,13 @@ function renderMain() {
   );
   const tbody = document.getElementById('main-body');
   const empty = document.getElementById('main-empty');
-  if (!rows.length) { tbody.innerHTML=''; empty.style.display='block'; }
+  if (!rows.length) {
+    tbody.innerHTML='';
+    empty.style.display='block';
+    empty.innerHTML = restDay
+      ? `<div class="no-rows-icon">🌙</div>Sunday — rest day. No KL Update rotation today.<br>Team A is off Sat &amp; Sun · Team B is off Sun &amp; Mon. The roster resumes Monday.`
+      : `<div class="no-rows-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>No entries match your filters.`;
+  }
   else { empty.style.display='none'; tbody.innerHTML = rows.map(d=>makeRow(d, DB.main.indexOf(d), 'main')).join(''); }
 
   // Cards (scoped to the selected date)
