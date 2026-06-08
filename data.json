@@ -2136,9 +2136,11 @@
     {
       "date": "June 08, 2026",
       "employee": "Avishek Rijal",
-      "assignment": "KL Update",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
-      "tickets": 0,
+      "tickets": 1,
       "remarks": ""
     },
     {
