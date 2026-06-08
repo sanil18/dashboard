@@ -2050,6 +2050,120 @@
       "status": "Available",
       "tickets": 0,
       "remarks": ""
+    },
+    {
+      "date": "June 08, 2026",
+      "employee": "Prajanya Parakram Shrestha",
+      "assignment": "KL Update",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 08, 2026",
+      "employee": "Kabita Maharjan",
+      "assignment": "KL Update",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 08, 2026",
+      "employee": "Bishwash Gurung",
+      "assignment": "Success Ticket",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 08, 2026",
+      "employee": "Anish Maharjan",
+      "assignment": "KL Update",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 08, 2026",
+      "employee": "Lasta Prajapati",
+      "assignment": "Success Ticket",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 08, 2026",
+      "employee": "Manoj Lama",
+      "assignment": "Success Ticket",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 08, 2026",
+      "employee": "Nischal Shrestha",
+      "assignment": [
+        "KL Update"
+      ],
+      "status": "On Leave",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 08, 2026",
+      "employee": "Abhay Manandhar",
+      "assignment": "KL Update",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 08, 2026",
+      "employee": "Avrila Maharjan",
+      "assignment": "KL Update",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 08, 2026",
+      "employee": "Shiraj Baidhya",
+      "assignment": "KL Update",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 08, 2026",
+      "employee": "Avishek Rijal",
+      "assignment": "KL Update",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 08, 2026",
+      "employee": "Simran Bhandari",
+      "assignment": "Success Ticket",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 08, 2026",
+      "employee": "Binit Karna",
+      "assignment": "KL Update",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
+    },
+    {
+      "date": "June 08, 2026",
+      "employee": "Sagar Koju",
+      "assignment": "Success Ticket",
+      "status": "Available",
+      "tickets": 0,
+      "remarks": ""
     }
   ]
 }
