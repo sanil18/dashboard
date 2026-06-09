@@ -256,8 +256,6 @@ tbody td:first-child{padding-left:18px}
           <div class="chk-group" id="f-assign">
             <label class="chk"><input type="checkbox" value="Onboarding">Onboarding</label>
             <label class="chk"><input type="checkbox" value="Success Ticket">Success Ticket</label>
-            <label class="chk"><input type="checkbox" value="Ticket Ops">Ticket Ops</label>
-            <label class="chk"><input type="checkbox" value="Floater">Floater</label>
             <label class="chk"><input type="checkbox" value="KL Update">KL Update</label>
             <label class="chk"><input type="checkbox" value="Projects">Projects</label>
           </div>
@@ -336,7 +334,7 @@ tbody td:first-child{padding-left:18px}
       <input class="srch" id="ms-search" type="text" placeholder="Search employee…" oninput="renderMain()"/>
       <select class="fsel" id="ms-date" onchange="renderMain()" title="Current week — defaults to today"></select>
       <select class="fsel" id="ms-status" onchange="renderMain()"><option value="">All Statuses</option><option>Available</option><option>On Leave</option></select>
-      <select class="fsel" id="ms-assign" onchange="renderMain()"><option value="">All Assignments</option><option>Onboarding</option><option>Success Ticket</option><option>Ticket Ops</option><option>Floater</option><option>KL Update</option><option>Projects</option></select>
+      <select class="fsel" id="ms-assign" onchange="renderMain()"><option value="">All Assignments</option><option>Onboarding</option><option>Success Ticket</option><option>KL Update</option><option>Projects</option></select>
       <div class="sp"></div>
       <span class="cinfo" id="ms-note"></span>
       <button class="btn btn-pri" id="btn-add-main" onclick="openEntry('main','add')">+ Add Entry</button>
@@ -604,7 +602,7 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 // Assignment can be a single string (legacy) or an array (multi-select). Normalize to an array.
 function asgList(a) { return Array.isArray(a) ? a.filter(Boolean) : (a ? [a] : []); }
 function assignBadge(a) {
-  const m = { 'Onboarding':'b-onb','Success Ticket':'b-suc','Ticket Ops':'b-top','Floater':'b-flo','KL Update':'b-kl','Projects':'b-prj' };
+  const m = { 'Onboarding':'b-onb','Success Ticket':'b-suc','KL Update':'b-kl','Projects':'b-prj' };
   const list = asgList(a);
   if (!list.length) return `<span class="badge">—</span>`;
   return list.map(x => `<span class="badge ${m[x]||''}" style="margin:1px 2px 1px 0">${x}</span>`).join('');
@@ -757,7 +755,7 @@ function renderMain() {
 // =====================================================================
 // WEEKLY REPORT  (read-only roll-up of DB.main over a chosen week)
 // =====================================================================
-const ASG_TYPES   = ['KL Update','Success Ticket','Ticket Ops','Floater','Projects','Onboarding'];
+const ASG_TYPES   = ['KL Update','Success Ticket','Projects','Onboarding'];
 const WEEKDAYS    = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];   // Mon..Sat (no Sunday rows)
 let   lastReportText = '';   // built on each render, consumed by copyReport()
 
@@ -797,7 +795,7 @@ function asgCat(list) {   // which per-employee columns a row's assignments touc
     kl:      list.includes('KL Update'),
     success: list.includes('Success Ticket'),
     projects:list.includes('Projects'),
-    other:   list.some(x => x==='Onboarding' || x==='Floater' || x==='Ticket Ops')
+    other:   list.some(x => x==='Onboarding')
   };
 }
 
