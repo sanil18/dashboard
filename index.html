@@ -182,8 +182,33 @@ tbody td:first-child{padding-left:18px}
 .btn-save-inline{background:var(--pri);color:#fff;border:none;border-radius:var(--rs);padding:6px 18px;font:600 12.5px 'DM Sans',sans-serif;cursor:pointer;transition:opacity .15s}
 .btn-save-inline:hover{opacity:.85}
 
+/* WEEKLY REPORT */
+.rp-toolbar{margin-bottom:18px}
+.rp-doc{display:flex;flex-direction:column;gap:0}
+.rp-title{margin-bottom:16px}
+.rp-title h2{font-size:20px;font-weight:700;letter-spacing:-.4px}
+.rp-sub{font-size:12.5px;color:var(--mut);margin-top:3px}
+.rp-mix{display:flex;flex-wrap:wrap;gap:10px;background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);margin-bottom:20px}
+.rp-chip{display:inline-flex;align-items:center;gap:6px;font-size:13px}
+.rp-chip b{font-family:'DM Mono',monospace;font-weight:600;font-size:13px;color:var(--txt)}
+.rp-sec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);margin:22px 0 8px}
+#panel-report .tbl-wrap{margin-bottom:4px}
+
 /* RESPONSIVE */
 @media(max-width:700px){.content{padding:14px}.header{padding:0 14px}.tabs{padding:0 6px}.fgrow,.fgrow3{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}.hsubtitle{display:none}.srch{width:140px}}
+
+/* PRINT — only the Weekly Report panel prints (clean one-pager / PDF) */
+@media print{
+  body{background:#fff}
+  .header,.tabs,.dirty-bar,.rp-toolbar,.overlay,.load-banner{display:none!important}
+  .content{padding:0;max-width:none}
+  #panel-main{display:none!important}
+  #panel-report{display:block!important}
+  .card,.rp-mix,.tbl-wrap{box-shadow:none;border:1px solid #ddd;break-inside:avoid}
+  .rp-sec-title{break-after:avoid}
+  thead{background:#f2f2f2}
+  @page{size:A4 portrait;margin:14mm}
+}
 </style>
 </head>
 <body>
@@ -291,6 +316,7 @@ tbody td:first-child{padding-left:18px}
 <!-- ===== TABS ===== -->
 <div class="tabs">
   <button class="tab active" onclick="switchTab('main')">Main</button>
+  <button class="tab" onclick="switchTab('report')">Weekly Report</button>
 </div>
 
 <!-- ===== CONTENT ===== -->
@@ -319,6 +345,60 @@ tbody td:first-child{padding-left:18px}
       <table><thead><tr><th>#</th><th>Date</th><th>Employee</th><th>Assignment</th><th>Status</th><th>Tickets</th><th>Remarks</th><th></th></tr></thead>
       <tbody id="main-body"></tbody></table>
       <div class="no-rows" id="main-empty" style="display:none"><div class="no-rows-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>No entries match your filters.</div>
+    </div>
+  </div>
+
+  <!-- ── WEEKLY REPORT ── -->
+  <div class="panel" id="panel-report">
+    <div class="toolbar rp-toolbar">
+      <span class="tlabel">Week:</span>
+      <select class="fsel" id="rp-week" onchange="renderReport()" title="Pick a week to report on"></select>
+      <span class="cinfo" id="rp-range"></span>
+      <div class="sp"></div>
+      <button class="btn btn-sec" id="rp-copy" onclick="copyReport()">📋 Copy summary</button>
+      <button class="btn btn-pri" onclick="printReport()">🖨 Print / Save PDF</button>
+    </div>
+
+    <div class="rp-doc" id="rp-doc">
+      <div class="rp-title">
+        <h2 id="rp-h">Weekly Report</h2>
+        <div class="rp-sub" id="rp-h-sub">—</div>
+      </div>
+
+      <div class="cards">
+        <div class="card blue"><div class="card-label">Headcount</div><div class="card-val" id="rp-head">—</div><div class="card-sub">Worked this week</div></div>
+        <div class="card green"><div class="card-label">Tickets Completed</div><div class="card-val" id="rp-tickets">—</div><div class="card-sub">Across the week</div></div>
+        <div class="card red"><div class="card-label">Leave Days</div><div class="card-val" id="rp-leave">—</div><div class="card-sub">On-leave entries</div></div>
+        <div class="card purple"><div class="card-label">Assignment-Days</div><div class="card-val" id="rp-asgdays">—</div><div class="card-sub">Total assigned</div></div>
+      </div>
+
+      <div class="rp-mix" id="rp-mix"></div>
+
+      <div class="rp-sec-title">Per-Employee Breakdown</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Employee</th><th>Team</th><th>Days</th><th>KL Update</th><th>Success</th><th>Projects</th><th>Other</th><th>On Leave</th><th>Tickets</th></tr></thead>
+          <tbody id="rp-emp-body"></tbody>
+        </table>
+        <div class="no-rows" id="rp-emp-empty" style="display:none"><div class="no-rows-icon">📋</div>No data for this week yet.</div>
+      </div>
+
+      <div class="rp-sec-title">Per-Day Breakdown</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Day</th><th>Date</th><th>Headcount</th><th>On Leave</th><th>KL Update</th><th>Success</th><th>Projects</th><th>Other</th><th>Tickets</th></tr></thead>
+          <tbody id="rp-day-body"></tbody>
+        </table>
+      </div>
+
+      <div class="rp-sec-title">Leave Log</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Employee</th><th>Remarks</th></tr></thead>
+          <tbody id="rp-leave-body"></tbody>
+        </table>
+        <div class="no-rows" id="rp-leave-empty" style="display:none"><div class="no-rows-icon">✓</div>No leave recorded this week.</div>
+      </div>
     </div>
   </div>
 
@@ -617,6 +697,7 @@ function getRow(sheet, idx) { return getList(sheet)[idx]; }
 // =====================================================================
 function renderAll() {
   renderMain();
+  renderReport();
 }
 
 let mainDateInit = false;   // ensures the date filter defaults to "today" only on first render
@@ -674,9 +755,201 @@ function renderMain() {
 }
 
 // =====================================================================
+// WEEKLY REPORT  (read-only roll-up of DB.main over a chosen week)
+// =====================================================================
+const ASG_TYPES   = ['KL Update','Success Ticket','Ticket Ops','Floater','Projects','Onboarding'];
+const WEEKDAYS    = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];   // Mon..Sat (no Sunday rows)
+let   lastReportText = '';   // built on each render, consumed by copyReport()
+
+// Parse a data date string ("June 06, 2026") to a UTC-midnight timestamp, or NaN.
+function parseDateStr(s) {
+  const m = (s||'').match(/^(\w+)\s+(\d+),\s+(\d+)$/);
+  if (!m) return NaN;
+  const mon = MONTH_NAMES.indexOf(m[1]);
+  return mon < 0 ? NaN : Date.UTC(+m[3], mon, +m[2]);
+}
+// The Monday (UTC ms) of the week a given timestamp falls in.
+function mondayUTCof(utc) {
+  const off = (new Date(utc).getUTCDay() + 6) % 7;   // days since Monday (Sun→6)
+  return utc - off * 86400000;
+}
+// The six working-day strings (Mon..Sat) of a week given its Monday.
+function weekDatesFromMonday(mondayUTC) {
+  return Array.from({ length:6 }, (_, i) => fmtUTCDate(mondayUTC + i * 86400000));
+}
+function shortMonthDay(s) { const m = s.match(/^(\w{3})\w*\s+(\d+)/); return m ? `${m[1]} ${m[2]}` : s; }
+
+// Distinct weeks present in DB.main (plus the current week), newest first.
+function listReportWeeks() {
+  const monds = new Set();
+  DB.main.forEach(r => { const u = parseDateStr(r.date); if (!isNaN(u)) monds.add(mondayUTCof(u)); });
+  const cur = currentWeekDates()[0];                  // Monday of the current week
+  const cu = parseDateStr(cur); if (!isNaN(cu)) monds.add(mondayUTCof(cu));
+  return [...monds].sort((a,b) => b - a).map(mu => {
+    const dates = weekDatesFromMonday(mu);
+    const year  = dates[5].match(/\d{4}$/);
+    return { mondayUTC:mu, dates, label:`${shortMonthDay(dates[0])} – ${shortMonthDay(dates[5])}, ${year ? year[0] : ''}` };
+  });
+}
+
+function asgCat(list) {   // which per-employee columns a row's assignments touch
+  return {
+    kl:      list.includes('KL Update'),
+    success: list.includes('Success Ticket'),
+    projects:list.includes('Projects'),
+    other:   list.some(x => x==='Onboarding' || x==='Floater' || x==='Ticket Ops')
+  };
+}
+
+function renderReport() {
+  if (!document.getElementById('rp-week')) return;   // panel not in DOM
+
+  // ── Week selector (preserve choice; default = current/newest week) ──
+  const sel   = document.getElementById('rp-week');
+  const prev  = sel.value;
+  const weeks = listReportWeeks();
+  sel.innerHTML = weeks.map(w => `<option value="${w.mondayUTC}">${w.label}</option>`).join('');
+  const chosen = weeks.find(w => String(w.mondayUTC) === prev) || weeks[0];
+  if (!chosen) return;
+  sel.value = chosen.mondayUTC;
+  const dates = chosen.dates;
+  document.getElementById('rp-range').textContent = `${dates[0]} → ${dates[5]}`;
+  document.getElementById('rp-h-sub').textContent = `Week of ${chosen.label} · Mon–Sat (Sunday is a rest day)`;
+
+  const rows = DB.main.filter(r => dates.includes(r.date));
+
+  // ── Summary + assignment mix ──
+  const mix = {};
+  ASG_TYPES.forEach(t => mix[t] = 0);
+  let asgDays = 0, leaveDays = 0, tickets = 0;
+  const emps = new Set();
+  rows.forEach(r => {
+    emps.add(r.employee);
+    if (r.status === 'On Leave') leaveDays++;
+    tickets += (r.tickets || 0);
+    asgList(r.assignment).forEach(a => { if (a in mix) mix[a]++; asgDays++; });
+  });
+  document.getElementById('rp-head').textContent    = emps.size;
+  document.getElementById('rp-tickets').textContent = tickets;
+  document.getElementById('rp-leave').textContent   = leaveDays;
+  document.getElementById('rp-asgdays').textContent = asgDays;
+  document.getElementById('rp-mix').innerHTML = ASG_TYPES
+    .map(t => `<span class="rp-chip">${assignBadge(t)}<b>${mix[t]}</b></span>`).join('');
+
+  // ── Per-employee (ALL who appear this week, roster order then name) ──
+  const order = {};
+  (DB.roster && DB.roster.members || []).forEach((m, i) => order[m.name] = i);
+  const teamOf = {};
+  (DB.roster && DB.roster.members || []).forEach(m => teamOf[m.name] = m.team || '');
+  const per = {};
+  rows.forEach(r => {
+    const e = per[r.employee] || (per[r.employee] = { days:0, kl:0, success:0, projects:0, other:0, leave:0, tickets:0 });
+    e.days++;
+    if (r.status === 'On Leave') e.leave++;
+    e.tickets += (r.tickets || 0);
+    const c = asgCat(asgList(r.assignment));
+    if (c.kl) e.kl++; if (c.success) e.success++; if (c.projects) e.projects++; if (c.other) e.other++;
+  });
+  const names = Object.keys(per).sort((a,b) =>
+    (order[a] ?? 1e9) - (order[b] ?? 1e9) || a.localeCompare(b));
+  const empBody = document.getElementById('rp-emp-body');
+  const empEmpty = document.getElementById('rp-emp-empty');
+  if (!names.length) { empBody.innerHTML = ''; empEmpty.style.display = 'block'; }
+  else {
+    empEmpty.style.display = 'none';
+    empBody.innerHTML = names.map(n => { const e = per[n]; return `<tr>
+      <td class="emp">${n}</td>
+      <td class="mono">${teamOf[n] ? 'Team '+teamOf[n] : '—'}</td>
+      <td class="mono" style="text-align:center">${e.days}</td>
+      <td class="mono" style="text-align:center">${e.kl||'—'}</td>
+      <td class="mono" style="text-align:center">${e.success||'—'}</td>
+      <td class="mono" style="text-align:center">${e.projects||'—'}</td>
+      <td class="mono" style="text-align:center">${e.other||'—'}</td>
+      <td class="mono" style="text-align:center">${e.leave||'—'}</td>
+      <td class="mono" style="text-align:center;font-weight:600">${e.tickets}</td>
+    </tr>`; }).join('');
+  }
+
+  // ── Per-day breakdown (Mon..Sat) ──
+  document.getElementById('rp-day-body').innerHTML = dates.map((dt, i) => {
+    const dr = rows.filter(r => r.date === dt);
+    const cnt = { kl:0, success:0, projects:0, other:0, leave:0, tickets:0 };
+    dr.forEach(r => {
+      if (r.status === 'On Leave') cnt.leave++;
+      cnt.tickets += (r.tickets || 0);
+      const c = asgCat(asgList(r.assignment));
+      if (c.kl) cnt.kl++; if (c.success) cnt.success++; if (c.projects) cnt.projects++; if (c.other) cnt.other++;
+    });
+    return `<tr>
+      <td class="emp">${WEEKDAYS[i]}</td>
+      <td class="mono">${dt}</td>
+      <td class="mono" style="text-align:center">${dr.length}</td>
+      <td class="mono" style="text-align:center">${cnt.leave||'—'}</td>
+      <td class="mono" style="text-align:center">${cnt.kl||'—'}</td>
+      <td class="mono" style="text-align:center">${cnt.success||'—'}</td>
+      <td class="mono" style="text-align:center">${cnt.projects||'—'}</td>
+      <td class="mono" style="text-align:center">${cnt.other||'—'}</td>
+      <td class="mono" style="text-align:center;font-weight:600">${cnt.tickets}</td>
+    </tr>`;
+  }).join('');
+
+  // ── Leave log ──
+  const leaves = rows.filter(r => r.status === 'On Leave');
+  const leaveBody = document.getElementById('rp-leave-body');
+  const leaveEmpty = document.getElementById('rp-leave-empty');
+  if (!leaves.length) { leaveBody.innerHTML = ''; leaveEmpty.style.display = 'block'; }
+  else {
+    leaveEmpty.style.display = 'none';
+    leaveBody.innerHTML = leaves.map(r => `<tr>
+      <td class="mono">${r.date}</td><td class="emp">${r.employee}</td><td class="rem">${r.remarks || '—'}</td>
+    </tr>`).join('');
+  }
+
+  // ── Plain-text summary for the clipboard ──
+  const lines = [];
+  lines.push(`Weekly Report — ${chosen.label}`);
+  lines.push(`(${dates[0]} → ${dates[5]})`);
+  lines.push('');
+  lines.push(`Headcount: ${emps.size}   Tickets: ${tickets}   Leave days: ${leaveDays}   Assignment-days: ${asgDays}`);
+  lines.push('');
+  lines.push('Assignment mix:');
+  ASG_TYPES.forEach(t => lines.push(`  • ${t}: ${mix[t]}`));
+  lines.push('');
+  lines.push('Per-employee (Days / KL / Success / Projects / Other / Leave / Tickets):');
+  names.forEach(n => { const e = per[n]; lines.push(`  ${n} — ${e.days} / ${e.kl} / ${e.success} / ${e.projects} / ${e.other} / ${e.leave} / ${e.tickets}`); });
+  if (leaves.length) {
+    lines.push('');
+    lines.push('Leave log:');
+    leaves.forEach(r => lines.push(`  ${r.date} — ${r.employee}${r.remarks ? ' ('+r.remarks+')' : ''}`));
+  }
+  lastReportText = lines.join('\n');
+}
+
+function printReport() {
+  if (typeof switchTab === 'function') switchTab('report');
+  window.print();
+}
+
+async function copyReport() {
+  const btn = document.getElementById('rp-copy');
+  try {
+    await navigator.clipboard.writeText(lastReportText);
+    const t = btn.textContent; btn.textContent = '✓ Copied';
+    setTimeout(() => { btn.textContent = t; }, 1800);
+  } catch(e) {
+    // Fallback for non-secure contexts where the Clipboard API is blocked.
+    const ta = document.createElement('textarea');
+    ta.value = lastReportText; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); btn.textContent = '✓ Copied'; setTimeout(()=>btn.textContent='📋 Copy summary',1800); }
+    catch(_) { alert('Could not copy automatically. Summary:\n\n' + lastReportText); }
+    ta.remove();
+  }
+}
+
+// =====================================================================
 // TABS
 // =====================================================================
-const TAB_IDS = ['main'];
+const TAB_IDS = ['main','report'];
 function switchTab(id) {
   document.querySelectorAll('.tab').forEach((b,i)=> b.classList.toggle('active', TAB_IDS[i]===id));
   document.querySelectorAll('.panel').forEach(p=> p.classList.remove('active'));
