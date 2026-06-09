@@ -2171,75 +2171,92 @@
       "date": "June 09, 2026",
       "employee": "Prajanya Parakram Shrestha",
       "assignment": [
-        "KL Update"
+        "Success Ticket"
       ],
       "status": "Available",
       "tickets": 0,
-      "remarks": ""
+      "remarks": "Smart Recruiters KL Refresh"
     },
     {
       "date": "June 09, 2026",
       "employee": "Kabita Maharjan",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
-      "tickets": 0,
+      "tickets": 2,
       "remarks": ""
     },
     {
       "date": "June 09, 2026",
       "employee": "Bishwash Gurung",
-      "assignment": "KL Update",
+      "assignment": [
+        "Success Ticket"
+      ],
       "status": "Available",
       "tickets": 0,
-      "remarks": ""
+      "remarks": "Smart Recruiters KL Refresh"
     },
     {
       "date": "June 09, 2026",
       "employee": "Anish Maharjan",
-      "assignment": "Success Ticket",
-      "status": "Available",
+      "assignment": [
+        "Success Ticket"
+      ],
+      "status": "On Leave",
       "tickets": 0,
       "remarks": ""
     },
     {
       "date": "June 09, 2026",
       "employee": "Lasta Prajapati",
-      "assignment": "KL Update",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
-      "tickets": 0,
+      "tickets": 2,
       "remarks": ""
     },
     {
       "date": "June 09, 2026",
       "employee": "Manoj Lama",
-      "assignment": "KL Update",
+      "assignment": [
+        "Success Ticket"
+      ],
       "status": "Available",
       "tickets": 0,
-      "remarks": ""
+      "remarks": "Smart Recruiters KL Refresh"
     },
     {
       "date": "June 09, 2026",
       "employee": "Nischal Shrestha",
-      "assignment": "KL Update",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
-      "tickets": 0,
+      "tickets": 2,
       "remarks": ""
     },
     {
       "date": "June 09, 2026",
       "employee": "Abhay Manandhar",
-      "assignment": "KL Update",
+      "assignment": [
+        "Projects"
+      ],
       "status": "Available",
       "tickets": 0,
-      "remarks": ""
+      "remarks": "2.0 transition of SecurityPal"
     },
     {
       "date": "June 09, 2026",
       "employee": "Avrila Maharjan",
-      "assignment": "KL Update",
+      "assignment": [
+        "KL Update",
+        "Projects"
+      ],
       "status": "Available",
-      "tickets": 0,
-      "remarks": ""
+      "tickets": 1,
+      "remarks": "KL 2.0 for Markmonitor"
     },
     {
       "date": "June 09, 2026",
@@ -2260,10 +2277,13 @@
     {
       "date": "June 09, 2026",
       "employee": "Simran Bhandari",
-      "assignment": "KL Update",
+      "assignment": [
+        "Success Ticket",
+        "Projects"
+      ],
       "status": "Available",
       "tickets": 0,
-      "remarks": ""
+      "remarks": "1. SurveyMonkey - Feedback Closure 2. Closing Loop of the Success Tickets 3. Elastic - Pending Questions Closure 4. Grammarly - Communication with EMs"
     },
     {
       "date": "June 09, 2026",
@@ -2284,25 +2304,31 @@
     {
       "date": "June 09, 2026",
       "employee": "Jenish Shrestha",
-      "assignment": "KL Update",
-      "status": "Available",
+      "assignment": [
+        "KL Update"
+      ],
+      "status": "On Leave",
       "tickets": 0,
       "remarks": ""
     },
     {
       "date": "June 09, 2026",
       "employee": "Avin Guruacharya",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
-      "tickets": 0,
+      "tickets": 2,
       "remarks": ""
     },
     {
       "date": "June 09, 2026",
       "employee": "Shreejan Shrestha",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "Success Ticket"
+      ],
       "status": "Available",
-      "tickets": 0,
+      "tickets": 2,
       "remarks": ""
     },
     {
@@ -2316,34 +2342,43 @@
     {
       "date": "June 09, 2026",
       "employee": "Shruti Sah",
-      "assignment": "KL Update",
+      "assignment": [
+        "Success Ticket"
+      ],
       "status": "Available",
       "tickets": 0,
-      "remarks": ""
+      "remarks": "Ivanti - KL Refresh"
     },
     {
       "date": "June 09, 2026",
       "employee": "Pradeep Karki",
-      "assignment": "KL Update",
+      "assignment": [
+        "Success Ticket",
+        "KL Update"
+      ],
       "status": "Available",
-      "tickets": 0,
-      "remarks": ""
+      "tickets": 1,
+      "remarks": "One KL Update completed for Hightouch, currently working on success request of the same"
     },
     {
       "date": "June 09, 2026",
       "employee": "Kusum Bista",
-      "assignment": "KL Update",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
-      "tickets": 0,
+      "tickets": 2,
       "remarks": ""
     },
     {
       "date": "June 09, 2026",
       "employee": "Shrishak Shrestha",
-      "assignment": "KL Update",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
-      "tickets": 0,
-      "remarks": ""
+      "tickets": 2,
+      "remarks": "Initial Review"
     },
     {
       "date": "June 09, 2026",
@@ -2364,7 +2399,9 @@
     {
       "date": "June 09, 2026",
       "employee": "Abiral Timilsina",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "Projects"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
