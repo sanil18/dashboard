@@ -2629,8 +2629,8 @@
         "KL Update"
       ],
       "status": "Available",
-      "tickets": 0,
-      "remarks": ""
+      "tickets": 1,
+      "remarks": "Worked on Smartrecruiter's KL Update ~150 rows."
     },
     {
       "date": "June 11, 2026",
@@ -2640,8 +2640,8 @@
         "KL Update"
       ],
       "status": "Available",
-      "tickets": 0,
-      "remarks": ""
+      "tickets": 1,
+      "remarks": "1 (end-to-end) Completed Superhuman follow-up request Currently working on Benevity Request"
     },
     {
       "date": "June 11, 2026",
@@ -2664,17 +2664,21 @@
     {
       "date": "June 11, 2026",
       "employee": "Lasta Prajapati",
-      "assignment": "KL Update",
+      "assignment": [
+        "Success Ticket"
+      ],
       "status": "Available",
-      "tickets": 0,
-      "remarks": ""
+      "tickets": 4,
+      "remarks": "worked on conveo."
     },
     {
       "date": "June 11, 2026",
       "employee": "Manoj Lama",
-      "assignment": "KL Update",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
-      "tickets": 0,
+      "tickets": 2,
       "remarks": ""
     },
     {
@@ -2684,7 +2688,7 @@
         "KL Update"
       ],
       "status": "Available",
-      "tickets": 0,
+      "tickets": 4,
       "remarks": ""
     },
     {
@@ -2723,7 +2727,7 @@
       ],
       "status": "Available",
       "tickets": 0,
-      "remarks": "Half time worked on XBOW as there were no members for handover. Worked on onboarding automation with Ajal."
+      "remarks": ""
     },
     {
       "date": "June 11, 2026",
@@ -2758,9 +2762,11 @@
     {
       "date": "June 11, 2026",
       "employee": "Jenish Shrestha",
-      "assignment": "KL Update",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
-      "tickets": 0,
+      "tickets": 1,
       "remarks": ""
     },
     {
@@ -2794,10 +2800,12 @@
     {
       "date": "June 11, 2026",
       "employee": "Shruti Sah",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "Success Ticket"
+      ],
       "status": "Available",
-      "tickets": 0,
-      "remarks": ""
+      "tickets": 5,
+      "remarks": "Maze tickets"
     },
     {
       "date": "June 11, 2026",
@@ -2806,23 +2814,27 @@
         "Success Ticket"
       ],
       "status": "Available",
-      "tickets": 0,
-      "remarks": ""
+      "tickets": 5,
+      "remarks": "Maze tickets."
     },
     {
       "date": "June 11, 2026",
       "employee": "Kusum Bista",
-      "assignment": "KL Update",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
-      "tickets": 0,
+      "tickets": 3,
       "remarks": ""
     },
     {
       "date": "June 11, 2026",
       "employee": "Shrishak Shrestha",
-      "assignment": "KL Update",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
-      "tickets": 0,
+      "tickets": 1,
       "remarks": ""
     },
     {
