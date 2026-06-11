@@ -2656,9 +2656,11 @@
     {
       "date": "June 11, 2026",
       "employee": "Anish Maharjan",
-      "assignment": "KL Update",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
-      "tickets": 0,
+      "tickets": 3,
       "remarks": ""
     },
     {
@@ -2699,14 +2701,16 @@
       ],
       "status": "Available",
       "tickets": 0,
-      "remarks": ""
+      "remarks": "KL 2.0"
     },
     {
       "date": "June 11, 2026",
       "employee": "Avrila Maharjan",
-      "assignment": "KL Update",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
-      "tickets": 0,
+      "tickets": 3,
       "remarks": ""
     },
     {
@@ -2782,9 +2786,11 @@
     {
       "date": "June 11, 2026",
       "employee": "Shreejan Shrestha",
-      "assignment": "KL Update",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
-      "tickets": 0,
+      "tickets": 2,
       "remarks": ""
     },
     {
