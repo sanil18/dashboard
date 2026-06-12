@@ -2919,7 +2919,7 @@
       "assignment": [
         "KL Update"
       ],
-      "status": "Available",
+      "status": "On Leave",
       "tickets": 0,
       "remarks": ""
     },
@@ -2946,7 +2946,9 @@
     {
       "date": "June 12, 2026",
       "employee": "Nischal Shrestha",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -2954,7 +2956,9 @@
     {
       "date": "June 12, 2026",
       "employee": "Abhay Manandhar",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "Projects"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -2962,7 +2966,9 @@
     {
       "date": "June 12, 2026",
       "employee": "Avrila Maharjan",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -2970,7 +2976,9 @@
     {
       "date": "June 12, 2026",
       "employee": "Shiraj Baidhya",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "Projects"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -2978,7 +2986,9 @@
     {
       "date": "June 12, 2026",
       "employee": "Avishek Rijal",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "Projects"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -2986,7 +2996,9 @@
     {
       "date": "June 12, 2026",
       "employee": "Simran Bhandari",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "Projects"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -2994,7 +3006,9 @@
     {
       "date": "June 12, 2026",
       "employee": "Binit Karna",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "Projects"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -3002,8 +3016,10 @@
     {
       "date": "June 12, 2026",
       "employee": "Sagar Koju",
-      "assignment": "Success Ticket",
-      "status": "Available",
+      "assignment": [
+        "Success Ticket"
+      ],
+      "status": "On Leave",
       "tickets": 0,
       "remarks": ""
     },
@@ -3018,7 +3034,9 @@
     {
       "date": "June 12, 2026",
       "employee": "Avin Guruacharya",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "Success Ticket"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -3026,7 +3044,9 @@
     {
       "date": "June 12, 2026",
       "employee": "Shreejan Shrestha",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -3034,7 +3054,9 @@
     {
       "date": "June 12, 2026",
       "employee": "Sushant Gurung",
-      "assignment": "KL Update",
+      "assignment": [
+        "Success Ticket"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -3042,7 +3064,10 @@
     {
       "date": "June 12, 2026",
       "employee": "Shruti Sah",
-      "assignment": "KL Update",
+      "assignment": [
+        "Success Ticket",
+        "KL Update"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -3050,7 +3075,10 @@
     {
       "date": "June 12, 2026",
       "employee": "Pradeep Karki",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "Success Ticket",
+        "KL Update"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -3058,7 +3086,9 @@
     {
       "date": "June 12, 2026",
       "employee": "Kusum Bista",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "KL Update"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -3074,7 +3104,9 @@
     {
       "date": "June 12, 2026",
       "employee": "Ajal Man Tuladhar",
-      "assignment": "KL Update",
+      "assignment": [
+        "Projects"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -3082,7 +3114,9 @@
     {
       "date": "June 12, 2026",
       "employee": "Shikhar Acharya",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "Projects"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -3090,7 +3124,9 @@
     {
       "date": "June 12, 2026",
       "employee": "Abiral Timilsina",
-      "assignment": "Success Ticket",
+      "assignment": [
+        "Projects"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
@@ -3098,7 +3134,9 @@
     {
       "date": "June 12, 2026",
       "employee": "Sanil Dulal",
-      "assignment": "KL Update",
+      "assignment": [
+        "Projects"
+      ],
       "status": "Available",
       "tickets": 0,
       "remarks": ""
